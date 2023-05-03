@@ -21,6 +21,8 @@ mas_iot_version:
   8.11.x-stable: 8.8.0-pre.stable
 mas_optimizer_version:
   8.11.x-stable: 8.5.0-pre.stable
+mas_manage_version:
+  8.11.x-stable: 8.7.0-pre.OM-Airgap-12107
 
 # Extra Images for UDS
 # ------------------------------------------------------------------------------

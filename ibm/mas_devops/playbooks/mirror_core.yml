@@ -19,12 +19,12 @@
     mirror_mode: "{{ lookup('env', 'MIRROR_MODE') | default ('direct', True) }}"
 
     mirror_catalog: "{{ lookup('env', 'MIRROR_CATALOG') | default ('True', True) | bool }}"
-    mirror_mongoce: "{{ lookup('env', 'MIRROR_MONGOCE') | default ('True', True) | bool }}"
-    mirror_common_svcs: "{{ lookup('env', 'MIRROR_COMMONSERVICES') | default ('True', True) | bool }}"
-    mirror_uds: "{{ lookup('env', 'MIRROR_UDS') | default ('True', True) | bool }}"
-    mirror_sls: "{{ lookup('env', 'MIRROR_SLS') | default ('True', True) | bool }}"
-    mirror_tsm: "{{ lookup('env', 'MIRROR_TRUSTSTOREMGR') | default ('True', True) | bool }}"
-    mirror_mas_core: "{{ lookup('env', 'MIRROR_MAS_CORE') | default ('True', True) | bool }}"
+    mirror_mongoce: "{{ lookup('env', 'MIRROR_MONGOCE') | default ('True', False) | bool }}"
+    mirror_common_svcs: "{{ lookup('env', 'MIRROR_COMMONSERVICES') | default ('True', False) | bool }}"
+    mirror_uds: "{{ lookup('env', 'MIRROR_UDS') | default ('True', False) | bool }}"
+    mirror_sls: "{{ lookup('env', 'MIRROR_SLS') | default ('True', False) | bool }}"
+    mirror_tsm: "{{ lookup('env', 'MIRROR_TRUSTSTOREMGR') | default ('True', False) | bool }}"
+    mirror_mas_core: "{{ lookup('env', 'MIRROR_MAS_CORE') | default ('True', False) | bool }}"
 
   pre_tasks:
     # Note that REGISTRY_USERNAME and REGISTRY_PASSWORD are not required.
