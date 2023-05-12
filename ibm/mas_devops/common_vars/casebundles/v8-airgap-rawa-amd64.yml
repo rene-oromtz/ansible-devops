@@ -9,19 +9,15 @@ common_svcs_version: 1.19.0       # Operator version 3.23.0 (https://github.com/
 db2u_version: 5.1.2               # Operator version 3.1.0 (https://github.com/IBM/cloud-pak/tree/master/repo/case/ibm-db2uoperator)
 events_version: 4.4.0             # Operator version 4.4.0 (https://github.com/IBM/cloud-pak/tree/master/repo/case/ibm-events-operator)
 uds_version: 2.0.9                # Operator version 2.0.9
-sls_version: 3.7.0                # Operator version 3.7.0
+sls_version: 3.7.0-pre.stable     # Operator dev version
 tsm_version: 1.5.1-pre.stable     # Operator dev version
 
 # Maximo Application Suite
 # -----------------------------------------------------------------------------
 mas_core_version:
-  8.11.x-stable: 8.11.0-pre.stable
-mas_iot_version:
-  8.11.x-stable: 8.8.0-pre.stable
-mas_optimizer_version:
-  8.11.x-stable: 8.5.0-pre.stable
+  8.10.x: 8.10.0
 mas_manage_version:
-  8.11.x-stable: 8.6.1-pre.airgap86
+  8.10.x: 8.6.1-pre.airgap86
 
 # Extra Images for UDS
 # ------------------------------------------------------------------------------

@@ -8,4 +8,5 @@ ibm/mas_devops/edge-routes-*.txt
 ibm/mas_devops/service-key_*.json
 ibm-mas_devops-*.tar.gz
 ibm/mas_devops/runAnsibl*.sh
+ibm/mas_devops/temp
 build/bin/downloads/*.tgz
