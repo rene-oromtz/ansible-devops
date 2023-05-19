@@ -15,9 +15,9 @@ tsm_version: 1.5.1-pre.stable     # Operator dev version
 # Maximo Application Suite
 # -----------------------------------------------------------------------------
 mas_core_version:
-  8.10.x: 8.10.0
+  8.11.x-stable: 8.11.0-pre.stable
 mas_manage_version:
-  8.10.x: 8.6.1-pre.airgap86
+  8.11.x-stable: 8.7.0-pre.airgap-rawa
 
 # Extra Images for UDS
 # ------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ uds_extras_version: 1.2.0
 
 # Extra Images for Mongo
 # ------------------------------------------------------------------------------
-mongo_extras_version: 4.2.23
+mongo_extras_version: 4.4.21
 
 # Extra Images for Db2u
 # ------------------------------------------------------------------------------
