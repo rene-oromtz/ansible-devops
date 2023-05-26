@@ -11,6 +11,7 @@ events_version: 4.4.0             # Operator version 4.4.0 (https://github.com/I
 uds_version: 2.0.9                # Operator version 2.0.9
 sls_version: 3.7.0-pre.stable     # Operator dev version
 tsm_version: 1.5.1-pre.stable     # Operator dev version
+dd_version: 1.1.5-pre.airgapv2      # Operator dev version
 
 # Maximo Application Suite
 # -----------------------------------------------------------------------------
@@ -18,6 +19,10 @@ mas_core_version:
   8.11.x-stable: 8.11.0-pre.stable
 mas_manage_version:
   8.11.x-stable: 8.7.0-pre.airgap-rawa
+mas_iot_version:
+  8.11.x-stable: 8.8.0-pre.stable
+mas_monitor_version:
+  8.11.x-stable: 8.11.0-pre.stable
 
 # Extra Images for UDS
 # ------------------------------------------------------------------------------
