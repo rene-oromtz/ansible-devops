@@ -14,6 +14,7 @@ copyDoc ansible_version_check
 copyDoc aws_bucket_access_point
 copyDoc aws_documentdb_user
 copyDoc aws_policy
+copyDoc aws_route53
 copyDoc aws_user_creation
 copyDoc aws_vpc
 copyDoc appconnect
@@ -43,10 +44,10 @@ copyDoc gencfg_workspace
 copyDoc ibm_catalogs
 copyDoc install_operator
 copyDoc kafka
+copyDoc kubeturbo
 copyDoc mirror_case_prepare
 copyDoc mirror_extras_prepare
-# copyDoc mirror_ocp_operators
-copyDoc mirror_ocp_release
+copyDoc mirror_ocp
 copyDoc mirror_images
 copyDoc mongodb
 copyDoc nvidia_gpu
@@ -56,6 +57,7 @@ copyDoc ocp_disable_updates
 copyDoc ocp_github_oauth
 copyDoc ocp_ingress
 copyDoc ocp_login
+copyDoc ocp_node_config
 copyDoc ocp_provision
 copyDoc ocp_roks_upgrade_registry_storage
 copyDoc ocp_simulate_disconnected_network
