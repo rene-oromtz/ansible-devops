@@ -1,0 +1,5 @@
+---
+extra_images:
+  - name: cpopen/saml-idp-operator
+    registry: docker-na-public.artifactory.swg-devops.com/wiotp-docker-local
+    digest: sha256:6fb24ce25ccf9c8386edb16c7795b49accdf45e9e96b3f0d69dd8186774c1a8a
