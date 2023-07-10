@@ -17,7 +17,7 @@ tsm_version: 1.5.1-pre.stable     # Operator dev version
 mas_core_version:
   8.11.x-stable: 8.11.0-pre.stable
 mas_manage_version:
-  8.11.x-stable: 8.7.0-pre.airgap-rawa
+  8.11.x-stable: 8.7.0-pre.fixes-rr
 
 # Extra Images for UDS
 # ------------------------------------------------------------------------------
