@@ -1,0 +1,46 @@
+---
+
+# 1. Check for undefined properties that do not have a default
+# -----------------------------------------------------------------------------
+- name: "Fail if mas_instance_id is not provided"
+  assert:
+    that: mas_instance_id is defined and mas_instance_id != ""
+    fail_msg: "mas_instance_id property is required"
+
+- name: "Fail if mas_uninstall_app is not provided"
+  assert:
+    that: mas_uninstall_app is defined and mas_uninstall_app != ""
+    fail_msg: "mas_uninstall_app property is required"
+
+- name: "Fail if mas_uninstall_app is not in defined list"
+  assert:
+    that: mas_uninstall_app is not in ["Assist", "DataDictionary", "HPUtilities", "Health", "IoT", "Manage", "Monitor", "Optimizer", "Predict", "VisualInspectionApp"]
+    fail_msg: "mas_uninstall_app property is in the defined list"
+
+- name: "Debug Uninstall Parameters"
+  debug:
+    msg:
+      - "MAS Instance ID .................... {{ mas_instance_id }}"
+      - "MAS Uninstall App .................. {{ mas_uninstall_app }}"
+
+
+
+# mas_uninstall_app should be in one of follows: Assist, DataDictionary, HPUtilities, Health, IoT, Manage, Monitor, Optimizer, Predict, VisualInspectionApp
+# Application name    | short name in namespce  | CR                  | APP CR              | workspace CR                  | Other CR
+# ---------------------------------------------------------------------------------------------------------------------------------------
+# Assist              | assist                  | N/A                 | AssistApp           | AssistWorkspace               | AssistBackup, AssistRestore       
+# DataDictionary      | add                     | AssetDataDictionary | N/A                 | DataDictionaryWorkspace       |
+# HPUtilities         | hputilities             | N/A                 | HPUtilitiesApp      | HPUtilitiesWorkspace          | 
+# Health              | health                  | N/A                 | HealthApp           | HealthWorkspace               |
+# IoT                 | iot                     | IoT                 | N/A                 | IoTWorkspace                  |
+# Manage              | manage                  | N/A                 | ManageApp           | ManageWorkspace               | ManageBuild, ManageDeployment, ManagementIngress, ManageServerBundle, ManageStatusChecker
+# Monitor             | monitor                 | Monitor             | MonitorApp          | MonitorWorkspace              |
+# Optimizer           | optimizer               | N/A                 | OptimizerApp        | OptimizerWorkspace            | OptimizerStatusChecker
+# Predict             | predict                 | N/A                 | PredictApp          | PredictWorkspace              |
+# VisualInspectionApp | visualinspection        | N/A                 | VisualInspectionApp | VisualInspectionAppWorkspace  |
+
+
+- name: "{{ mas_uninstall_app }} : Check existing application installation"
+  when:
+    - mas_uninstall_app == "assist"
+  include_tasks: tasks/uninstall_assist.yml

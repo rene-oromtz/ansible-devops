@@ -1,0 +1,3 @@
+---
+mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
+mas_uninstall_app: "{{ lookup('env', 'MAS_UNINSTALL_APP') }}"

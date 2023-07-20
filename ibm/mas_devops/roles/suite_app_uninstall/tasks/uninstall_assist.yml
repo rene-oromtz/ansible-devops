@@ -1,0 +1,176 @@
+---
+
+# mas_uninstall_app should be in one of follows: Assist, DataDictionary, HPUtilities, Health, IoT, Manage, Monitor, Optimizer, Predict, VisualInspectionApp
+# Application name    | short name in namespce  | CR                  | APP CR              | workspace CR                  | Other CR
+# ---------------------------------------------------------------------------------------------------------------------------------------
+# Assist              | assist                  | N/A                 | AssistApp           | AssistWorkspace               | AssistBackup, AssistRestore       
+# DataDictionary      | add                     | AssetDataDictionary |                     | DataDictionaryWorkspace       |
+# HPUtilities         | hputilities             | N/A                 | HPUtilitiesApp      | HPUtilitiesWorkspace          | 
+# Health              | health                  | N/A                 | HealthApp           | HealthWorkspace               |
+# IoT                 | iot                     | IoT                 | N/A                 | IoTWorkspace                  |
+# Manage              | manage                  | N/A                 | ManageApp           | ManageWorkspace               | ManageBuild, ManageDeployment, ManagementIngress, ManageServerBundle, ManageStatusChecker
+# Monitor             | monitor                 | Monitor             | MonitorApp          | MonitorWorkspace              |
+# Optimizer           | optimizer               | N/A                 | OptimizerApp        | OptimizerWorkspace            | OptimizerStatusChecker
+# Predict             | predict                 | N/A                 | PredictApp          | PredictWorkspace              |
+# VisualInspectionApp | visualinspection        | N/A                 | VisualInspectionApp | VisualInspectionAppWorkspace  |
+
+
+# 1. Delete the ApplicationApp CR
+# -----------------------------------------------------------------------------
+- name: "Delete AssistApp CR"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: core.mas.ibm.com/v1
+    kind: "AssistApp"
+    namespace: "mas-{{ mas_instance_id }}-assist"
+    name: "{{ mas_instance_id }}"
+  
+
+# 2. Wait for all deployments to be terminated other than the two operators
+# -----------------------------------------------------------------------------
+- name: "Wait for all deployments to wind down"
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Deployment
+    namespace: "mas-{{ mas_instance_id }}-assist"
+  register: deployments
+  until:
+    - deployments.resources is defined
+    - deployments.resources | length <= 3
+  retries: 30
+  delay: 10
+
+
+# 3. Verify that APP CR is gone
+# -----------------------------------------------------------------------------
+- name: "Look for the AssistApp CR after deletion"
+  kubernetes.core.k8s_info:
+    api_version: core.mas.ibm.com/v1
+    kind: "AssistApp"
+    namespace: "mas-{{ mas_instance_id }}-assist"
+    name: "{{ mas_instance_id }}"
+  register: verify_app_app_delete
+
+- name: "Verify the AssistApp CR was deleted"
+  assert:
+    that:
+      - verify_app_app_delete.resources is defined
+      - verify_app_app_delete.resources | length == 0
+
+# TO-DO !!!!!!
+# 4. Verify that Truststore CRs are all gone
+# -----------------------------------------------------------------------------
+- name: "Look for the Suite CR after deletion"
+  kubernetes.core.k8s_info:
+    api_version: truststore-mgr.ibm.com/v1
+    kind: Truststore
+    namespace: "mas-{{ mas_instance_id }}-assist"
+  register: verify_truststores_delete
+
+- name: "Verify the Suite Truststores were all deleted"
+  assert:
+    that:
+      - verify_truststores_delete.resources is defined
+      - verify_truststores_delete.resources | length == 0
+
+# TO-DO !!!!!!
+# 7. Delete Assist Subscription
+# -----------------------------------------------------------------------------
+# TODO: This would be more reliable if we used a label selector with:
+#         operators.coreos.com/ibm-mas.mas-clitest-core: ""
+- name: "Delete ibm-mas-assist Subscription"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: operators.coreos.com/v1alpha1
+    kind: Subscription
+    namespace: "mas-{{ mas_instance_id }}-assist"
+    label_selectors:
+      - "operators.coreos.com/ibm-mas-assist.mas-{{ mas_instance_id }}-assist"
+
+# - name: "Delete ibm-truststore-mgr Subscription"
+#   kubernetes.core.k8s:
+#     state: absent
+#     api_version: operators.coreos.com/v1alpha1
+#     kind: Subscription
+#     namespace: "mas-{{ mas_instance_id }}-assist"
+#     label_selectors:
+#       - "operators.coreos.com/ibm-truststore-mgr.mas-{{ mas_instance_id }}-assist"
+
+# - name: "Delete ibm-common-service-operator Subscription"
+#   kubernetes.core.k8s:
+#     state: absent
+#     api_version: operators.coreos.com/v1alpha1
+#     kind: Subscription
+#     namespace: "mas-{{ mas_instance_id }}-assist"
+#     label_selectors:
+#       - "operators.coreos.com/ibm-common-service-operator.mas-{{ mas_instance_id }}-core"
+
+# TO-DO !!!!!!
+# 8. Delete CSVs
+# -----------------------------------------------------------------------------
+- name: "Delete ibm-mas CSV"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: operators.coreos.com/v1alpha1
+    kind: ClusterServiceVersion
+    namespace: "mas-{{ mas_instance_id }}-assist"
+    label_selectors:
+      - "operators.coreos.com/ibm-mas-assist.mas-{{ mas_instance_id }}-assist"
+
+# - name: "Delete ibm-truststore-mgr CSV"
+#   kubernetes.core.k8s:
+#     state: absent
+#     api_version: operators.coreos.com/v1alpha1
+#     kind: ClusterServiceVersion
+#     namespace: "mas-{{ mas_instance_id }}-assist"
+#     label_selectors:
+#       - "operators.coreos.com/ibm-truststore-mgr.mas-{{ mas_instance_id }}-core"
+
+# - name: "Delete ibm-common-service-operator CSV"
+#   kubernetes.core.k8s:
+#     state: absent
+#     api_version: operators.coreos.com/v1alpha1
+#     kind: ClusterServiceVersion
+#     namespace: "mas-{{ mas_instance_id }}-assist"
+#     label_selectors:
+#       - "operators.coreos.com/ibm-common-service-operator.mas-{{ mas_instance_id }}-core"
+
+
+# 9. Wait for all deployments to be terminated
+# -----------------------------------------------------------------------------
+- name: "Wait for operator deployments to wind down"
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Deployment
+    namespace: "mas-{{ mas_instance_id }}-assist"
+  register: deployments
+  until:
+    - deployments.resources is defined
+    - deployments.resources | length == 0
+  retries: 30
+  delay: 10
+
+
+# 13. Delete APP Namespace
+# -----------------------------------------------------------------------------
+- name: "Delete core namespace"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Namespace
+    name: "mas-{{ mas_instance_id }}-assist"
+
+
+# 14. Verify APP Namespace is gone
+# -----------------------------------------------------------------------------
+- name: "Wait for namespace to be deleted"
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Namespace
+    name: "mas-{{ mas_instance_id }}-assist"
+  register: namespace_check
+  until:
+    - namespace_check.resources is defined
+    - namespace_check.resources | length == 0
+  retries: 30
+  delay: 10
