@@ -3,9 +3,9 @@
 # mas_uninstall_app should be in one of follows: Assist, DataDictionary, HPUtilities, Health, IoT, Manage, Monitor, Optimizer, Predict, VisualInspectionApp
 # Application name    | short name in namespce  | CR                  | APP CR              | workspace CR                  | Other CR
 # ---------------------------------------------------------------------------------------------------------------------------------------
-# Assist              | assist                  | N/A                 | OptimizerApp           | OptimizerWorkspace               | AssistBackup, AssistRestore       
+# Assist              | assist                  | N/A                 | OptimizerApp        | OptimizerWorkspace            | AssistBackup, AssistRestore
 # DataDictionary      | add                     | AssetDataDictionary |                     | DataDictionaryWorkspace       |
-# HPUtilities         | hputilities             | N/A                 | HPUtilitiesApp      | HPUtilitiesWorkspace          | 
+# HPUtilities         | hputilities             | N/A                 | HPUtilitiesApp      | HPUtilitiesWorkspace          |
 # Health              | health                  | N/A                 | HealthApp           | HealthWorkspace               |
 # IoT                 | iot                     | IoT                 | N/A                 | IoTWorkspace                  |
 # Manage              | manage                  | N/A                 | ManageApp           | ManageWorkspace               | ManageBuild, ManageDeployment, ManagementIngress, ManageServerBundle, ManageStatusChecker
@@ -24,7 +24,7 @@
     kind: "OptimizerApp"
     namespace: "mas-{{ mas_instance_id }}-optimizer"
     name: "{{ mas_instance_id }}"
-  
+
 
 # 1.2 Delete the workspace CR
 # -----------------------------------------------------------------------------
@@ -125,7 +125,7 @@
     api_version: truststore-mgr.ibm.com/v1
     kind: Truststore
     namespace: "mas-{{ mas_instance_id }}-optimizer"
-    
+
 - name: "Look for the Optimizer truststore CR after deletion"
   kubernetes.core.k8s_info:
     api_version: truststore-mgr.ibm.com/v1
@@ -153,7 +153,7 @@
     namespace: "mas-{{ mas_instance_id }}-optimizer"
     label_selectors:
       - "operators.coreos.com/ibm-mas-optimizer.mas-{{ mas_instance_id }}-optimizer"
-         
+
 
 # delete the truststore subscription
 - name: "Delete ibm-mas-optimizer truststore Subscription"

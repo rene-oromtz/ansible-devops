@@ -16,7 +16,7 @@
     kind: "VisualInspectionApp"
     namespace: "mas-{{ mas_instance_id }}-visualinspection"
     name: "{{ mas_instance_id }}"
-  
+
 
 # 1.2 Delete the workspace CR
 # -----------------------------------------------------------------------------

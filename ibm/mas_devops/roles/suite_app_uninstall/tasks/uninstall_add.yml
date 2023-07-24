@@ -3,9 +3,9 @@
 # mas_uninstall_app should be in one of follows: Assist, DataDictionary, HPUtilities, Health, IoT, Manage, Monitor, Optimizer, Predict, VisualInspectionApp
 # Application name    | short name in namespce  | CR                  | APP CR              | workspace CR                  | Other CR
 # ---------------------------------------------------------------------------------------------------------------------------------------
-# Assist              | assist                  | N/A                 | AssistApp           | AssistWorkspace               | AssistBackup, AssistRestore       
+# Assist              | assist                  | N/A                 | AssistApp           | AssistWorkspace               | AssistBackup, AssistRestore
 # DataDictionary      | add                     | AssetDataDictionary |                     | DataDictionaryWorkspace       |
-# HPUtilities         | hputilities             | N/A                 | HPUtilitiesApp      | HPUtilitiesWorkspace          | 
+# HPUtilities         | hputilities             | N/A                 | HPUtilitiesApp      | HPUtilitiesWorkspace          |
 # Health              | health                  | N/A                 | HealthApp           | HealthWorkspace               |
 # IoT                 | iot                     | IoT                 | N/A                 | IoTWorkspace                  |
 # Manage              | manage                  | N/A                 | ManageApp           | ManageWorkspace               | ManageBuild, ManageDeployment, ManagementIngress, ManageServerBundle, ManageStatusChecker
@@ -24,7 +24,7 @@
     kind: "AssetDataDictionary"
     namespace: "mas-{{ mas_instance_id }}-add"
     name: "{{ mas_instance_id }}"
-  
+
 
 # 1.2 Delete the workspace CR
 # -----------------------------------------------------------------------------
@@ -36,7 +36,7 @@
     namespace: "mas-{{ mas_instance_id }}-add"
     name: "{{ mas_instance_id }}-main"
 
-# 1.3 Delete the other related CR 
+# 1.3 Delete the other related CR
 # -----------------------------------------------------------------------------
 # N/A
 

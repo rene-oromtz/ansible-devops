@@ -16,7 +16,7 @@
     kind: "PredictApp"
     namespace: "mas-{{ mas_instance_id }}-predict"
     name: "{{ mas_instance_id }}"
-  
+
 
 # 1.2 Delete the workspace CR
 # -----------------------------------------------------------------------------
@@ -99,7 +99,7 @@
     api_version: truststore-mgr.ibm.com/v1
     kind: Truststore
     namespace: "mas-{{ mas_instance_id }}-predict"
-    
+
 - name: "Look for the Predict truststore CR after deletion"
   kubernetes.core.k8s_info:
     api_version: truststore-mgr.ibm.com/v1
@@ -127,7 +127,7 @@
     namespace: "mas-{{ mas_instance_id }}-predict"
     label_selectors:
       - "operators.coreos.com/ibm-mas-predict.mas-{{ mas_instance_id }}-predict"
-         
+
 
 # delete the truststore subscription
 - name: "Delete ibm-mas-predict truststore Subscription"
@@ -138,7 +138,7 @@
     namespace: "mas-{{ mas_instance_id }}-predict"
     label_selectors:
       - "operators.coreos.com/ibm-truststore-mgr.mas-{{ mas_instance_id }}-predict"
-         
+
 
 # 6. Delete CSVs
 # -----------------------------------------------------------------------------
