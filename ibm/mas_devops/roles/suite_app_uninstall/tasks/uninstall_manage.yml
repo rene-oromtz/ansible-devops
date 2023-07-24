@@ -3,7 +3,7 @@
 # mas_uninstall_app should be in one of follows: Assist, DataDictionary, HPUtilities, Health, IoT, Manage, Monitor, Optimizer, Predict, VisualInspectionApp
 # Application name    | short name in namespce  | CR                  | APP CR              | workspace CR                  | Other CR
 # ---------------------------------------------------------------------------------------------------------------------------------------
-# Assist              | assist                  | N/A                 | AssistApp           | AssistWorkspace               | AssistBackup, AssistRestore       
+# Assist              | assist                  | N/A                 | ManageApp           | ManageWorkspace               | AssistBackup, AssistRestore       
 # DataDictionary      | add                     | AssetDataDictionary |                     | DataDictionaryWorkspace       |
 # HPUtilities         | hputilities             | N/A                 | HPUtilitiesApp      | HPUtilitiesWorkspace          | 
 # Health              | health                  | N/A                 | HealthApp           | HealthWorkspace               |
@@ -17,44 +17,68 @@
 
 # 1.1 Delete the App CR
 # -----------------------------------------------------------------------------
-- name: "Delete AssistApp CR"
+- name: "Delete ManageApp CR"
   kubernetes.core.k8s:
     state: absent
     api_version: core.mas.ibm.com/v1
-    kind: "AssistApp"
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    kind: "ManageApp"
+    namespace: "mas-{{ mas_instance_id }}-manage"
     name: "{{ mas_instance_id }}"
   
 
 # 1.2 Delete the workspace CR
 # -----------------------------------------------------------------------------
-- name: "Delete AssistWorkspace CR"
+- name: "Delete ManageWorkspace CR"
   kubernetes.core.k8s:
     state: absent
     api_version: apps.mas.ibm.com/v1
-    kind: "AssistWorkspace"
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    kind: "ManageWorkspace"
+    namespace: "mas-{{ mas_instance_id }}-manage"
     name: "{{ mas_instance_id }}-main"
 
 
 # 1.3 Delete the other related CR (To be confirm the namespace and the name of the instance
 # -----------------------------------------------------------------------------
-- name: "Delete AssistBackup CR"
+- name: "Delete ManageBuild CR"
   kubernetes.core.k8s:
     state: absent
     api_version: core.mas.ibm.com/v1
-    kind: "AssistBackup"
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    kind: "ManageBuild"
+    namespace: "mas-{{ mas_instance_id }}-manage"
     name: "{{ mas_instance_id }}"
 
-- name: "Delete AssistRestore CR"
+- name: "Delete ManageDeployment CR"
   kubernetes.core.k8s:
     state: absent
     api_version: core.mas.ibm.com/v1
-    kind: "AssistRestore"
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    kind: "ManageDeployment"
+    namespace: "mas-{{ mas_instance_id }}-manage"
     name: "{{ mas_instance_id }}"
 
+
+- name: "Delete ManagementIngress CR"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: core.mas.ibm.com/v1
+    kind: "ManagementIngress"
+    namespace: "mas-{{ mas_instance_id }}-manage"
+    name: "{{ mas_instance_id }}"
+
+- name: "Delete ManageServerBundle CR"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: core.mas.ibm.com/v1
+    kind: "ManageServerBundle"
+    namespace: "mas-{{ mas_instance_id }}-manage"
+    name: "{{ mas_instance_id }}"
+
+- name: "Delete ManageStatusChecker CR"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: core.mas.ibm.com/v1
+    kind: "ManageStatusChecker"
+    namespace: "mas-{{ mas_instance_id }}-manage"
+    name: "{{ mas_instance_id }}"    
 
 # 2. Wait for all deployments to be terminated other than the two operators
 # -----------------------------------------------------------------------------
@@ -62,7 +86,7 @@
   kubernetes.core.k8s_info:
     api_version: v1
     kind: Deployment
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    namespace: "mas-{{ mas_instance_id }}-manage"
   register: deployments
   until:
     - deployments.resources is defined
@@ -73,15 +97,15 @@
 
 # 3.1 Verify that APP CR is gone
 # -----------------------------------------------------------------------------
-- name: "Look for the AssistApp CR after deletion"
+- name: "Look for the ManageApp CR after deletion"
   kubernetes.core.k8s_info:
     api_version: core.mas.ibm.com/v1
-    kind: "AssistApp"
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    kind: "ManageApp"
+    namespace: "mas-{{ mas_instance_id }}-manage"
     name: "{{ mas_instance_id }}"
   register: verify_app_app_delete
 
-- name: "Verify the AssistApp CR was deleted"
+- name: "Verify the ManageApp CR was deleted"
   assert:
     that:
       - verify_app_app_delete.resources is defined
@@ -91,15 +115,15 @@
 
 # 3.2 Verify that workspace CR is gone
 # -----------------------------------------------------------------------------
-- name: "Look for the AssistWorkspace CR after deletion"
+- name: "Look for the ManageWorkspace CR after deletion"
   kubernetes.core.k8s_info:
     api_version: apps.mas.ibm.com/v1
-    kind: "AssistWorkspace"
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    kind: "ManageWorkspace"
+    namespace: "mas-{{ mas_instance_id }}-manage"
     name: "{{ mas_instance_id }}-main"
   register: verify_app_app_delete
 
-- name: "Verify the AssistWorkspace CR was deleted"
+- name: "Verify the ManageWorkspace CR was deleted"
   assert:
     that:
       - verify_app_app_delete.resources is defined
@@ -107,37 +131,80 @@
 
 
 
-# 3.3 Verify that related CRs are gone
+# 3.3 Verify that related CRs are gone (ManageBuild, ManageDeployment, ManagementIngress, ManageServerBundle, ManageStatusChecker)
 # -----------------------------------------------------------------------------
-- name: "Look for the AssistBackup CR after deletion"
+- name: "Look for the ManageBuild CR after deletion"
   kubernetes.core.k8s_info:
     api_version: core.mas.ibm.com/v1
-    kind: "AssistBackup"
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    kind: "ManageBuild"
+    namespace: "mas-{{ mas_instance_id }}-manage"
     name: "{{ mas_instance_id }}"
   register: verify_app_app_delete
 
-- name: "Verify the AssistBackup CR was deleted"
+- name: "Verify the ManageBuild CR was deleted"
   assert:
     that:
       - verify_app_app_delete.resources is defined
       - verify_app_app_delete.resources | length == 0
 
 
-- name: "Look for the AssistRestore CR after deletion"
+- name: "Look for the ManageDeployment CR after deletion"
   kubernetes.core.k8s_info:
     api_version: core.mas.ibm.com/v1
-    kind: "AssistRestore"
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    kind: "ManageDeployment"
+    namespace: "mas-{{ mas_instance_id }}-manage"
     name: "{{ mas_instance_id }}"
   register: verify_app_app_delete
 
-- name: "Verify the AssistRestore CR was deleted"
+- name: "Verify the ManageDeployment CR was deleted"
   assert:
     that:
       - verify_app_app_delete.resources is defined
       - verify_app_app_delete.resources | length == 0
 
+
+- name: "Look for the ManagementIngress CR after deletion"
+  kubernetes.core.k8s_info:
+    api_version: core.mas.ibm.com/v1
+    kind: "ManagementIngress"
+    namespace: "mas-{{ mas_instance_id }}-manage"
+    name: "{{ mas_instance_id }}"
+  register: verify_app_app_delete
+
+- name: "Verify the ManagementIngress CR was deleted"
+  assert:
+    that:
+      - verify_app_app_delete.resources is defined
+      - verify_app_app_delete.resources | length == 0
+
+- name: "Look for the ManageServerBundle CR after deletion"
+  kubernetes.core.k8s_info:
+    api_version: core.mas.ibm.com/v1
+    kind: "ManageServerBundle"
+    namespace: "mas-{{ mas_instance_id }}-manage"
+    name: "{{ mas_instance_id }}"
+  register: verify_app_app_delete
+
+- name: "Verify the ManageServerBundle CR was deleted"
+  assert:
+    that:
+      - verify_app_app_delete.resources is defined
+      - verify_app_app_delete.resources | length == 0
+
+
+- name: "Look for the ManageStatusChecker CR after deletion"
+  kubernetes.core.k8s_info:
+    api_version: core.mas.ibm.com/v1
+    kind: "ManageStatusChecker"
+    namespace: "mas-{{ mas_instance_id }}-manage"
+    name: "{{ mas_instance_id }}"
+  register: verify_app_app_delete
+
+- name: "Verify the ManageStatusChecker CR was deleted"
+  assert:
+    that:
+      - verify_app_app_delete.resources is defined
+      - verify_app_app_delete.resources | length == 0
 
 # 4. Delete Truststore CR and Verify that Truststore CR is gone (to be confirm if delete Truststore instance needed )
 # -----------------------------------------------------------------------------
@@ -149,36 +216,46 @@
 # -----------------------------------------------------------------------------
 # TODO: This would be more reliable if we used a label selector with:
 #         operators.coreos.com/ibm-mas.mas-clitest-core: ""
-- name: "Delete ibm-mas-assist Subscription"
+- name: "Delete Manage Subscription"
   kubernetes.core.k8s:
     state: absent
     api_version: operators.coreos.com/v1alpha1
     kind: Subscription
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    namespace: "mas-{{ mas_instance_id }}-manage"
     label_selectors:
-      - "operators.coreos.com/ibm-mas-assist.mas-{{ mas_instance_id }}-assist"
+      - "operators.coreos.com/ibm-mas-manage.mas-{{ mas_instance_id }}-manage"
 
 # delete the couchdb subscription
-- name: "Delete ibm-mas-assist couchdb Subscription"
+- name: "Delete Manage Truststore Subscription"
   kubernetes.core.k8s:
     state: absent
     api_version: operators.coreos.com/v1alpha1
     kind: Subscription
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    namespace: "mas-{{ mas_instance_id }}-manage"
     label_selectors:
-      - "operators.coreos.com/couchdb-operator.mas-{{ mas_instance_id }}-assist"
+      - "operators.coreos.com/ibm-truststore-mgr.mas-{{ mas_instance_id }}-manage"
 
 
 # 6. Delete CSVs
 # -----------------------------------------------------------------------------
-- name: "Delete ibm-mas CSV"
+- name: "Delete Manage CSV"
   kubernetes.core.k8s:
     state: absent
     api_version: operators.coreos.com/v1alpha1
     kind: ClusterServiceVersion
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    namespace: "mas-{{ mas_instance_id }}-manage"
     label_selectors:
-      - "operators.coreos.com/ibm-mas-assist.mas-{{ mas_instance_id }}-assist"
+      - "operators.coreos.com/ibm-mas-manage.mas-{{ mas_instance_id }}-manage"
+
+
+- name: "Delete Manage truststore CSV"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: operators.coreos.com/v1alpha1
+    kind: ClusterServiceVersion
+    namespace: "mas-{{ mas_instance_id }}-manage"
+    label_selectors:
+      - "operators.coreos.com/ibm-truststore-mgr.mas-{{ mas_instance_id }}-manage"
 
 
 # 7. Wait for all deployments to be terminated
@@ -187,7 +264,7 @@
   kubernetes.core.k8s_info:
     api_version: v1
     kind: Deployment
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    namespace: "mas-{{ mas_instance_id }}-manage"
   register: deployments
   until:
     - deployments.resources is defined
@@ -203,7 +280,7 @@
     state: absent
     api_version: v1
     kind: Namespace
-    name: "mas-{{ mas_instance_id }}-assist"
+    name: "mas-{{ mas_instance_id }}-manage"
 
 
 # 9. Verify APP Namespace is gone
@@ -212,7 +289,7 @@
   kubernetes.core.k8s_info:
     api_version: v1
     kind: Namespace
-    name: "mas-{{ mas_instance_id }}-assist"
+    name: "mas-{{ mas_instance_id }}-manage"
   register: namespace_check
   until:
     - namespace_check.resources is defined

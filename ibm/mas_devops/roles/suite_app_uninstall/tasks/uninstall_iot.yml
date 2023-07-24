@@ -17,43 +17,29 @@
 
 # 1.1 Delete the App CR
 # -----------------------------------------------------------------------------
-- name: "Delete AssistApp CR"
+- name: "Delete IoT CR"
   kubernetes.core.k8s:
     state: absent
     api_version: core.mas.ibm.com/v1
-    kind: "AssistApp"
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    kind: "IoT"
+    namespace: "mas-{{ mas_instance_id }}-iot"
     name: "{{ mas_instance_id }}"
   
 
 # 1.2 Delete the workspace CR
 # -----------------------------------------------------------------------------
-- name: "Delete AssistWorkspace CR"
+- name: "Delete IoTWorkspace CR"
   kubernetes.core.k8s:
     state: absent
     api_version: apps.mas.ibm.com/v1
-    kind: "AssistWorkspace"
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    kind: "IoTWorkspace"
+    namespace: "mas-{{ mas_instance_id }}-iot"
     name: "{{ mas_instance_id }}-main"
 
 
 # 1.3 Delete the other related CR (To be confirm the namespace and the name of the instance
 # -----------------------------------------------------------------------------
-- name: "Delete AssistBackup CR"
-  kubernetes.core.k8s:
-    state: absent
-    api_version: core.mas.ibm.com/v1
-    kind: "AssistBackup"
-    namespace: "mas-{{ mas_instance_id }}-assist"
-    name: "{{ mas_instance_id }}"
-
-- name: "Delete AssistRestore CR"
-  kubernetes.core.k8s:
-    state: absent
-    api_version: core.mas.ibm.com/v1
-    kind: "AssistRestore"
-    namespace: "mas-{{ mas_instance_id }}-assist"
-    name: "{{ mas_instance_id }}"
+# N/A
 
 
 # 2. Wait for all deployments to be terminated other than the two operators
@@ -62,7 +48,7 @@
   kubernetes.core.k8s_info:
     api_version: v1
     kind: Deployment
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    namespace: "mas-{{ mas_instance_id }}-iot"
   register: deployments
   until:
     - deployments.resources is defined
@@ -73,15 +59,15 @@
 
 # 3.1 Verify that APP CR is gone
 # -----------------------------------------------------------------------------
-- name: "Look for the AssistApp CR after deletion"
+- name: "Look for the IoT CR after deletion"
   kubernetes.core.k8s_info:
     api_version: core.mas.ibm.com/v1
-    kind: "AssistApp"
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    kind: "IoT"
+    namespace: "mas-{{ mas_instance_id }}-iot"
     name: "{{ mas_instance_id }}"
   register: verify_app_app_delete
 
-- name: "Verify the AssistApp CR was deleted"
+- name: "Verify the IoT CR was deleted"
   assert:
     that:
       - verify_app_app_delete.resources is defined
@@ -91,15 +77,15 @@
 
 # 3.2 Verify that workspace CR is gone
 # -----------------------------------------------------------------------------
-- name: "Look for the AssistWorkspace CR after deletion"
+- name: "Look for the IoTWorkspace CR after deletion"
   kubernetes.core.k8s_info:
     api_version: apps.mas.ibm.com/v1
-    kind: "AssistWorkspace"
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    kind: "IoTWorkspace"
+    namespace: "mas-{{ mas_instance_id }}-iot"
     name: "{{ mas_instance_id }}-main"
   register: verify_app_app_delete
 
-- name: "Verify the AssistWorkspace CR was deleted"
+- name: "Verify the IoTWorkspace CR was deleted"
   assert:
     that:
       - verify_app_app_delete.resources is defined
@@ -109,39 +95,30 @@
 
 # 3.3 Verify that related CRs are gone
 # -----------------------------------------------------------------------------
-- name: "Look for the AssistBackup CR after deletion"
-  kubernetes.core.k8s_info:
-    api_version: core.mas.ibm.com/v1
-    kind: "AssistBackup"
-    namespace: "mas-{{ mas_instance_id }}-assist"
-    name: "{{ mas_instance_id }}"
-  register: verify_app_app_delete
-
-- name: "Verify the AssistBackup CR was deleted"
-  assert:
-    that:
-      - verify_app_app_delete.resources is defined
-      - verify_app_app_delete.resources | length == 0
-
-
-- name: "Look for the AssistRestore CR after deletion"
-  kubernetes.core.k8s_info:
-    api_version: core.mas.ibm.com/v1
-    kind: "AssistRestore"
-    namespace: "mas-{{ mas_instance_id }}-assist"
-    name: "{{ mas_instance_id }}"
-  register: verify_app_app_delete
-
-- name: "Verify the AssistRestore CR was deleted"
-  assert:
-    that:
-      - verify_app_app_delete.resources is defined
-      - verify_app_app_delete.resources | length == 0
+# N/A
 
 
 # 4. Delete Truststore CR and Verify that Truststore CR is gone (to be confirm if delete Truststore instance needed )
 # -----------------------------------------------------------------------------
+- name: "Delete IoT truststore"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: truststore-mgr.ibm.com/v1
+    kind: Truststore
+    namespace: "mas-{{ mas_instance_id }}-iot"
+    
+- name: "Look for the IoT truststore CR after deletion"
+  kubernetes.core.k8s_info:
+    api_version: truststore-mgr.ibm.com/v1
+    kind: Truststore
+    namespace: "mas-{{ mas_instance_id }}-iot"
+  register: verify_truststores_delete
 
+- name: "Verify the IoT Truststores were all deleted"
+  assert:
+    that:
+      - verify_truststores_delete.resources is defined
+      - verify_truststores_delete.resources | length == 0
 
 
 
@@ -149,36 +126,54 @@
 # -----------------------------------------------------------------------------
 # TODO: This would be more reliable if we used a label selector with:
 #         operators.coreos.com/ibm-mas.mas-clitest-core: ""
-- name: "Delete ibm-mas-assist Subscription"
+- name: "Delete IoT Subscription"
   kubernetes.core.k8s:
     state: absent
     api_version: operators.coreos.com/v1alpha1
     kind: Subscription
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    namespace: "mas-{{ mas_instance_id }}-iot"
     label_selectors:
-      - "operators.coreos.com/ibm-mas-assist.mas-{{ mas_instance_id }}-assist"
-
-# delete the couchdb subscription
-- name: "Delete ibm-mas-assist couchdb Subscription"
+      - "operators.coreos.com/ibm-mas-iot.mas-{{ mas_instance_id }}-iot"
+         
+# delete the truststore mgt subscription
+- name: "Delete IoT truststore mgt Subscription"
   kubernetes.core.k8s:
     state: absent
     api_version: operators.coreos.com/v1alpha1
     kind: Subscription
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    namespace: "mas-{{ mas_instance_id }}-iot"
     label_selectors:
-      - "operators.coreos.com/couchdb-operator.mas-{{ mas_instance_id }}-assist"
+      - "operators.coreos.com/ibm-truststore-mgr.mas-{{ mas_instance_id }}-iot"
 
+# delete the truststore mgt subscription
+- name: "Delete IoT eclipse-amlen Subscription"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: operators.coreos.com/v1alpha1
+    kind: Subscription
+    namespace: "mas-{{ mas_instance_id }}-iot"
+    label_selectors:
+      - "operators.coreos.com/eclipse-amlen-operator.mas-{{ mas_instance_id }}-iot"
 
 # 6. Delete CSVs
 # -----------------------------------------------------------------------------
-- name: "Delete ibm-mas CSV"
+- name: "Delete IoT CSV"
   kubernetes.core.k8s:
     state: absent
     api_version: operators.coreos.com/v1alpha1
     kind: ClusterServiceVersion
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    namespace: "mas-{{ mas_instance_id }}-iot"
     label_selectors:
-      - "operators.coreos.com/ibm-mas-assist.mas-{{ mas_instance_id }}-assist"
+      - "operators.coreos.com/ibm-mas-iot.mas-{{ mas_instance_id }}-iot"
+
+- name: "Delete IoT Truststore CSV"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: operators.coreos.com/v1alpha1
+    kind: ClusterServiceVersion
+    namespace: "mas-{{ mas_instance_id }}-iot"
+    label_selectors:
+      - "operators.coreos.com/ibm-truststore-mgr.mas-{{ mas_instance_id }}-iot"
 
 
 # 7. Wait for all deployments to be terminated
@@ -187,7 +182,7 @@
   kubernetes.core.k8s_info:
     api_version: v1
     kind: Deployment
-    namespace: "mas-{{ mas_instance_id }}-assist"
+    namespace: "mas-{{ mas_instance_id }}-iot"
   register: deployments
   until:
     - deployments.resources is defined
@@ -203,7 +198,7 @@
     state: absent
     api_version: v1
     kind: Namespace
-    name: "mas-{{ mas_instance_id }}-assist"
+    name: "mas-{{ mas_instance_id }}-iot"
 
 
 # 9. Verify APP Namespace is gone
@@ -212,7 +207,7 @@
   kubernetes.core.k8s_info:
     api_version: v1
     kind: Namespace
-    name: "mas-{{ mas_instance_id }}-assist"
+    name: "mas-{{ mas_instance_id }}-iot"
   register: namespace_check
   until:
     - namespace_check.resources is defined

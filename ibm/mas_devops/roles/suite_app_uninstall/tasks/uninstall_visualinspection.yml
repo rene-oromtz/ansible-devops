@@ -1,0 +1,164 @@
+---
+
+# mas_uninstall_app should be in one of follows: Assist, DataDictionary, HPUtilities, Health, IoT, Manage, Monitor, Predict, Predict, VisualInspectionApp
+# Application name    | short name in namespce  | CR                  | APP CR              | workspace CR                  | Other CR
+# ---------------------------------------------------------------------------------------------------------------------------------------
+# VisualInspectionApp | visualinspection        | N/A                 | VisualInspectionApp | VisualInspectionAppWorkspace  |
+
+
+
+# 1.1 Delete the App CR
+# -----------------------------------------------------------------------------
+- name: "Delete VisualInspectionApp CR"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: core.mas.ibm.com/v1
+    kind: "VisualInspectionApp"
+    namespace: "mas-{{ mas_instance_id }}-visualinspection"
+    name: "{{ mas_instance_id }}"
+  
+
+# 1.2 Delete the workspace CR
+# -----------------------------------------------------------------------------
+- name: "Delete VisualInspectionAppWorkspace CR"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: apps.mas.ibm.com/v1
+    kind: "VisualInspectionAppWorkspace"
+    namespace: "mas-{{ mas_instance_id }}-visualinspection"
+    name: "{{ mas_instance_id }}-main"
+
+
+# 1.3 Delete the other related CR (To be confirm the namespace and the name of the instance
+# -----------------------------------------------------------------------------
+# N/A
+
+
+
+# 2. Wait for all deployments to be terminated other than the two operators
+# -----------------------------------------------------------------------------
+- name: "Wait for all deployments to wind down"
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Deployment
+    namespace: "mas-{{ mas_instance_id }}-visualinspection"
+  register: deployments
+  until:
+    - deployments.resources is defined
+    - deployments.resources | length <= 3
+  retries: 30
+  delay: 10
+
+
+# 3.1 Verify that APP CR is gone
+# -----------------------------------------------------------------------------
+- name: "Look for the VisualInspectionApp CR after deletion"
+  kubernetes.core.k8s_info:
+    api_version: core.mas.ibm.com/v1
+    kind: "VisualInspectionApp"
+    namespace: "mas-{{ mas_instance_id }}-visualinspection"
+    name: "{{ mas_instance_id }}"
+  register: verify_app_app_delete
+
+- name: "Verify the VisualInspectionApp CR was deleted"
+  assert:
+    that:
+      - verify_app_app_delete.resources is defined
+      - verify_app_app_delete.resources | length == 0
+
+
+
+# 3.2 Verify that workspace CR is gone
+# -----------------------------------------------------------------------------
+- name: "Look for the VisualInspectionAppWorkspace CR after deletion"
+  kubernetes.core.k8s_info:
+    api_version: apps.mas.ibm.com/v1
+    kind: "VisualInspectionAppWorkspace"
+    namespace: "mas-{{ mas_instance_id }}-visualinspection"
+    name: "{{ mas_instance_id }}-main"
+  register: verify_app_app_delete
+
+- name: "Verify the VisualInspectionAppWorkspace CR was deleted"
+  assert:
+    that:
+      - verify_app_app_delete.resources is defined
+      - verify_app_app_delete.resources | length == 0
+
+
+
+# 3.3 Verify that related CRs are gone
+# -----------------------------------------------------------------------------
+# N/A
+
+
+# 4. Delete Truststore CR and Verify that Truststore CR is gone (to be confirm if delete Truststore instance needed )
+# -----------------------------------------------------------------------------
+# N/A
+
+
+
+# 5. Delete Assist Subscription (confirm the api_version)
+# -----------------------------------------------------------------------------
+# TODO: This would be more reliable if we used a label selector with:
+#         operators.coreos.com/ibm-mas.mas-clitest-core: ""
+- name: "Delete ibm-mas-visualinspection Subscription"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: operators.coreos.com/v1alpha1
+    kind: Subscription
+    namespace: "mas-{{ mas_instance_id }}-visualinspection"
+    label_selectors:
+      - "operators.coreos.com/ibm-mas-visualinspection.mas-{{ mas_instance_id }}-visualinspection"
+
+
+# 6. Delete CSVs
+# -----------------------------------------------------------------------------
+- name: "Delete Predict CSV"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: operators.coreos.com/v1alpha1
+    kind: ClusterServiceVersion
+    namespace: "mas-{{ mas_instance_id }}-visualinspection"
+    label_selectors:
+      - "operators.coreos.com/ibm-mas-visualinspection.mas-{{ mas_instance_id }}-visualinspection"
+
+
+
+# 7. Wait for all deployments to be terminated
+# -----------------------------------------------------------------------------
+- name: "Wait for operator deployments to wind down"
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Deployment
+    namespace: "mas-{{ mas_instance_id }}-visualinspection"
+  register: deployments
+  until:
+    - deployments.resources is defined
+    - deployments.resources | length == 0
+  retries: 30
+  delay: 10
+
+
+# 8. Delete APP Namespace
+# -----------------------------------------------------------------------------
+- name: "Delete Predict namespace"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Namespace
+    name: "mas-{{ mas_instance_id }}-visualinspection"
+
+
+# 9. Verify APP Namespace is gone
+# -----------------------------------------------------------------------------
+- name: "Wait for namespace to be deleted"
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Namespace
+    name: "mas-{{ mas_instance_id }}-visualinspection"
+  register: namespace_check
+  until:
+    - namespace_check.resources is defined
+    - namespace_check.resources | length == 0
+  retries: 30
+  delay: 10
