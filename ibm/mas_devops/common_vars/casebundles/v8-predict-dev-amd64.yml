@@ -27,8 +27,6 @@ mas_optimizer_version:
   8.11.x-stable: 8.5.0-pre.stable
 mas_predict_version:
   8.11.x-stable: 8.9.0-pre.stable
-mas_visualinspection_version:
-  8.11.x-stable: 8.9.0-pre.stable
 
 # Extra Images for UDS
 # ------------------------------------------------------------------------------
