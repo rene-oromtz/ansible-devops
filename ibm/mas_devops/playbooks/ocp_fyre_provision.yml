@@ -24,7 +24,7 @@
     - ibm.mas_devops.ocp_verify
 
     # 3. Update the APIServer to custom for fips compatibility
-    - ibm.mas_devops.ocp_update_apiserver
+    - ibm.mas_devops.ocp_config
 
     # 4. Install OpenShift Container Storage
     - ibm.mas_devops.ocs
