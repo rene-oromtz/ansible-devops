@@ -1,8 +1,7 @@
 ---
 # Default application spec for Manage
 mas_appws_spec:
-  bindings:
-    jdbc: "{{ mas_appws_bindings_jdbc | default( 'system' , true) }}"
+  bindings: "{{ mas_app_bindings }}"
   components: "{{ mas_appws_components | default({'base':{'version':'latest'}}, true) }}"
   settings:
     deployment:
@@ -21,3 +20,4 @@ mas_appws_spec:
         tableSpace: "{{ mas_app_settings_tablespace }}"
         indexSpace: "{{ mas_app_settings_indexspace }}"
         bypassUpgradeVersionCheck: false
+    customizationList: "{{ mas_app_settings_customization_list if (mas_app_settings_customization_archive_url is defined and mas_app_settings_customization_archive_url | length > 0) else []  }}"

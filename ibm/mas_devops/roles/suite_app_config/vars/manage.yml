@@ -4,8 +4,8 @@ mas_app_ws_apiversion: apps.mas.ibm.com/v1
 mas_app_ws_kind: ManageWorkspace
 
 # Depending on the number of components being used the time to configure Manage can grow significantly
-mas_app_cfg_retries: 60  # ~8 hours
-mas_app_cfg_delay: 480  # ~8 minutes
+mas_app_cfg_delay: "{{ lookup('env', 'MAS_APP_CFG_DELAY') | default(480, true)}}" # ~8 minutes
+mas_app_cfg_retries: "{{ lookup('env', 'MAS_APP_CFG_RETRIES') | default(60, true)}}" # ~8 hours
 
 mas_app_settings_aio_flag: "{{ lookup('env', 'MAS_APP_SETTINGS_AIO_FLAG') | default('true', true) | bool }}"
 mas_app_settings_db2_schema: "{{ lookup('env', 'MAS_APP_SETTINGS_DB2_SCHEMA') | default('maximo', true)}}"
@@ -81,7 +81,7 @@ server_bundles_add_server_config_content: "{{ lookup('file', '{{ role_path }}/fi
 # this setting will be applied to jms - this server bundle will have special config for JMS queues in the xml
 server_bundles_jms_add_server_config_content: "{{ lookup('file', '{{ role_path }}/files/manage/manage-jms-additional-server-config.xml.j2') }}"
 
-# these settings will defined the bundle servers spec
+# these settings will define the bundle servers spec
 mas_app_settings_server_bundles_size: "{{ lookup('env', 'MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE') | default('dev', true)  }}"
 mas_app_settings_server_bundles:
   dev:
@@ -194,3 +194,37 @@ mas_app_settings_server_bundles:
         name: jms
         replica: 1
         routeSubDomain: jms
+
+# these settings will define the customization archive
+mas_app_settings_customization_archive_url: "{{ lookup('env', 'MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL') }}"
+mas_app_settings_customization_archive_name: "{{ lookup('env', 'MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME') | default('manage-custom-archive', true) }}"
+mas_app_settings_customization_archive_username: "{{ lookup('env', 'MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME') }}"
+mas_app_settings_customization_archive_password: "{{ lookup('env', 'MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD') }}"
+
+mas_app_settings_customization_list:
+  - customizationArchiveName: "{{ mas_app_settings_customization_archive_name }}"
+    customizationArchiveUrl: "{{ mas_app_settings_customization_archive_url }}"
+
+mas_app_settings_customization_credentials_secret_name: "{{ mas_workspace_id }}-{{ mas_app_id }}-cl0--cac--sn"
+mas_app_settings_customization_credentials:
+  customizationArchiveCredentials:
+    secretName: "{{ mas_app_settings_customization_credentials_secret_name }}"
+
+# -------------------
+# Manage/Health Bindings
+# -------------------
+
+mas_appws_bindings_health_wsl: "{{ lookup('env', 'MAS_APPWS_BINDINGS_HEALTH_WSL') }}"
+
+# Bindins will be like this
+mas_app_bindings_jdbc:
+  jdbc: "{{ mas_appws_bindings_jdbc | default( 'system' , true) }}"
+
+# ... or this, depending on
+mas_app_bindings_jdbc_wsl:
+  jdbc: "{{ mas_appws_bindings_jdbc | default( 'system' , true) }}"
+  watsonstudio: "{{ mas_appws_bindings_health_wsl | default( 'system' , true) }}"
+
+mas_app_bindings: "{{ mas_app_bindings_jdbc_wsl if mas_appws_bindings_health_wsl is defined else mas_app_bindings_jdbc }}"
+
+# -------------------
