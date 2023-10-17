@@ -4,13 +4,13 @@
 - name: set ocp ingress tls secret
   when: ocp_ingress_tls_secret_name is not defined
   set_fact:
-    ocp_ingress_tls_secret_name: "{{ lookup('env', 'OCP_INGRESS_TLS_SECRET_NAME') | default('router-certs-default', True) }}"
+    ocp_ingress_tls_secret_name: "{{ lookup('env', 'OCP_INGRESS_TLS_SECRET_NAME') }}"
 
 
 # 2. If the secret name wasn't provided directly then look it up
 # -----------------------------------------------------------------------------
 - name: Lookup the default ingress controller
-  when: ocp_ingress_tls_secret_name is not defined
+  when: ocp_ingress_tls_secret_name is not defined or ocp_ingress_tls_secret_name == ""
   k8s_info:
     api_version: operator.openshift.io/v1
     kind: IngressController
@@ -19,7 +19,7 @@
   register: opc_default_ingress_controller
 
 - name: Confirm that we can find the default certificate name
-  when: ocp_ingress_tls_secret_name is not defined
+  when: ocp_ingress_tls_secret_name is not defined or ocp_ingress_tls_secret_name == ""
   assert:
     that:
       - opc_default_ingress_controller.resources is defined
@@ -31,7 +31,7 @@
     fail_msg: "Unable to retrieve the name of the default ingress certificate from IngressController/default in the openshift-ingress-operator namespace"
 
 - name: Register the default certificate name
-  when: ocp_ingress_tls_secret_name is not defined
+  when: ocp_ingress_tls_secret_name is not defined or ocp_ingress_tls_secret_name == ""
   set_fact:
     cluster_ingress_secret_name: "{{ opc_default_ingress_controller.resources[0].spec.defaultCertificate.name }}"
 
@@ -67,4 +67,3 @@
   debug:
     msg:
       - "Cluster Ingress Cert Secret Name ...... {{ cluster_ingress_secret_name | default('missing', True) }}"
-      - "Cluster Ingress Cert .................. {{ cluster_ingress_tls_crt | default('missing', True) }}"
