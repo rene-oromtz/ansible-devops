@@ -34,6 +34,13 @@ spec:
 {% if mas_channel != '8.7.x' and mas_channel != '8.8.x' %}
     manualCertMgmt: {{  mas_manual_cert_mgmt  }}
 {% endif %}
+    sso:
+      accessTokenTimeout: "{{ idle_timeout }}"
+      defaultIDP: "{{ idp_session_timeout }}"
+      idleTimeout: "{{ access_token_timeout }}"
+      idpSessionTimeout: "{{ refresh_token_timeout }}"
+      refreshTokenTimeout: "{{ default_idp }}"
+      seamlessLogin: "{{ seamless_login }}"
     icr:
       cp: "{{ mas_icr_cp }}"
       cpopen: "{{ mas_icr_cpopen }}"

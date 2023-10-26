@@ -9,6 +9,17 @@ mas_channel: "{{ lookup('env', 'MAS_CHANNEL') }}"
 mas_domain: "{{ lookup('env', 'MAS_DOMAIN') }}"
 mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
 
+
+# SSO Configuration
+# -----------------------------------------------------------------------------
+idle_timeout: "{{ lookup('env', 'IDLE_TIMEOUT') | default('1800', true) }}"
+idp_session_timeout: "{{ lookup('env', 'IDP_SESSION_TIMEOUT') | default('12h', true) }}"
+access_token_timeout: "{{ lookup('env', 'ACCESS_TOKEN_TIMEOUT') | default('30m', true) }}"
+refresh_token_timeout: "{{ lookup('env', 'REFRESH_TOKEN_TIMEOUT') | default('12h', true) }}"
+default_idp: "{{ lookup('env', 'DEFAULT_IDP') | default('local', true) }}"
+seamless_login: "{{ lookup('env', 'SEAMLESS_LOGIN') | default(False, true) }}"
+
+
 # Certificate Management
 # -----------------------------------------------------------------------------
 mas_cluster_issuer: "{{ lookup('env', 'MAS_CLUSTER_ISSUER') }}"
