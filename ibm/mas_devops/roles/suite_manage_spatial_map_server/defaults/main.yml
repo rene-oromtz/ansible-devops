@@ -1,0 +1,8 @@
+---
+# The following MAS information is needed to lookup the right Manage app instance
+# ---------------------------------------------------------------------------------------------------------------------
+mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
+mas_workspace_id: "{{ lookup('env', 'MAS_WORKSPACE_ID') }}"
+mas_app_id: "{{ lookup('env', 'MAS_APP_ID') }}" 
+
+map_cert_alias_prefix: "mapcertpart" # prefix to be used to name the cloud object storage certificates

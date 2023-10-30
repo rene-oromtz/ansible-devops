@@ -1,0 +1,18 @@
+---
+# Retrieve MAP certificate chain
+# -----------------------------------------------------------------------------
+- name: Retrieve MAP certificates using openssl
+  vars:
+    map_host_name: "{{ map_url | regex_replace('https://', '''') }}" # remove https if needed
+  shell:
+    cmd: "openssl s_client -servername {{ map_host_name }} -connect {{ map_host_name }}:443 -showcerts </dev/null  2>/dev/null"
+  register: get_certs_r
+  ignore_errors: true
+
+- name: "Extract MAP certificate content"
+  set_fact:
+    map_tls_crt: "{{ get_certs_r.stdout | regex_findall('(-----BEGIN .+?-----(?s).+?-----END .+?-----)', multiline=True, ignorecase=True) }}"
+
+- name: "Assert IBM MAP certificate content exists - if applicable"
+  assert:
+    that: "{{ map_tls_crt | length > 0 }}"
