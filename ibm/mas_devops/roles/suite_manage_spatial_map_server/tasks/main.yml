@@ -13,12 +13,12 @@
 
 # Configure MAP server cert for Manage attachments
 # -----------------------------------------------------------------------------
-  - name: 'Retrieve map certificates'
-    include_tasks: "tasks/retrieve-map-certs.yml"
+- name: 'Retrieve map certificates'
+  include_tasks: "tasks/retrieve-map-certs.yml"
 
-  - name: "Add the MAP certificates in ManageWorkspace CR"
-    import_role:
-      name: ibm.mas_devops.suite_manage_import_certs_config
+- name: "Add the MAP certificates in ManageWorkspace CR"
+  import_role:
+    name: ibm.mas_devops.suite_manage_import_certs_config
     vars:
       manage_certificates: "{{ map_tls_crt }}"
       manage_certificates_alias_prefix: "{{ map_cert_alias_prefix }}"
