@@ -21,9 +21,9 @@
 - name: "Add the MAP certificates in ManageWorkspace CR"
   import_role:
     name: ibm.mas_devops.suite_manage_import_certs_config
-    vars:
-      manage_certificates: "{{ map_tls_crt }}"
-      manage_certificates_alias_prefix: "{{ map_cert_alias_prefix }}"
+  vars:
+    manage_certificates: "{{ map_tls_crt }}"
+    manage_certificates_alias_prefix: "{{ map_cert_alias_prefix }}"
 
 # 7. Restart Manage bundle pods to pick up the storage provider configuration
 # ---------------------------------------------------------------------------------------------------------------------
