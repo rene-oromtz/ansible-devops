@@ -15,7 +15,8 @@
 # -----------------------------------------------------------------------------
 - name: "Retrieve map certificates"
   include_tasks: "tasks/retrieve-map-certs.yml"
-  vars:
+  debug:
+    msg: "from main after retrieve-map-certs ran"
 
 - name: "Add the MAP certificates in ManageWorkspace CR"
   import_role:

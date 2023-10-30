@@ -1,6 +1,8 @@
 ---
 # Retrieve MAP certificate chain
 # -----------------------------------------------------------------------------
+- debug:
+  msg: "From inside retrieve-map-certs"
 - name: Retrieve MAP certificates using openssl
   vars:
     map_host_name: "{{ map_url | regex_replace('https://', '''') }}" # remove https if needed
