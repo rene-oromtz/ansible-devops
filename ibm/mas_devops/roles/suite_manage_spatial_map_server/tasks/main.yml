@@ -13,8 +13,9 @@
 
 # Configure MAP server cert for Manage attachments
 # -----------------------------------------------------------------------------
-- name: 'Retrieve map certificates'
+- name: "Retrieve map certificates"
   include_tasks: "tasks/retrieve-map-certs.yml"
+  vars:
 
 - name: "Add the MAP certificates in ManageWorkspace CR"
   import_role:
