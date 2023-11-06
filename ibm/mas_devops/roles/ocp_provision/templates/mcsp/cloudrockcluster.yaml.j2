@@ -17,6 +17,8 @@ spec:
   account:
     secretname: "{{ mcsp_platform_account_secret_name }}"
   addon:
+
+    # Required addon, config must be present
     argocd:
       config:
         argoprojects:
@@ -30,7 +32,7 @@ spec:
       secrets:
         argo: "{{ mcsp_argocd_secret_name }}"
 
-    # idpverify, security and logforward addon config is required (even if it's not enabled)
+    # Required addon, config must be present
     idpverify:
       enabled: {{ mcsp_idpverify_enabled }}
       config:
@@ -56,6 +58,8 @@ spec:
             - key: samplekey
               operator: Exists
               effect: NoSchedule
+
+    # Required addon, config must be present
     logforwarder:
       enabled: {{ mcsp_logforwarder_enabled }}
       config:
@@ -68,6 +72,17 @@ spec:
       secrets: 
         dlc-cert: "{{ mcsp_logforwarder_secret_dlc_name }}"
         syslog-forwarder: "{{ mcsp_logforwarder_secret_sf_name }}"
+
+{% if mcsp_kubeturbo_enabled %}
+    kubeturbo:
+      config:
+        turboServer: "{{ mcsp_kubeturbo_turbo_server }}"
+        turboVersion: {{ mcsp_kubeturbo_turbo_version }}
+      enabled: true
+      secrets:
+        kubeturbo: "{{ mcsp_kubeturbo_secret_kubeturbo_name }}"
+{% endif %}
+
   actions: 
     reconcile: true
     donotreconcile: false

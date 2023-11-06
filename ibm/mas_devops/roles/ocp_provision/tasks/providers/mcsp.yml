@@ -1,26 +1,59 @@
 - name: "mcsp : Fail if required vars are not provided"
   assert:
     that:
-      - cluster_name is defined and cluster_name != ""
-      - ocp_version is defined and ocp_version != ""
-      - mcsp_control_plane_api is defined and mcsp_control_plane_api != ""
-      - mcsp_control_plane_token is defined and mcsp_control_plane_token != ""
-      - mcsp_region is defined and mcsp_region != ""
-      - mcsp_platform is defined and mcsp_platform is in ["aws"]
-      - mcsp_platform_account_secret_name is defined and mcsp_platform_account_secret_name != ""
-      - mcsp_control_plane_namespace is defined and mcsp_control_plane_namespace != ""
-      - mcsp_worker_count is defined and mcsp_worker_count != ""
-      - mcsp_worker_flavor is defined and mcsp_worker_flavor != ""
-      - mcsp_argocd_api is defined and mcsp_argocd_api != ""
-      - mcsp_argocd_secret_name is defined and mcsp_argocd_secret_name != ""
-      - mcsp_argocd_project_name is defined and mcsp_argocd_project_name != ""
-      - mcsp_idpverify_enabled is defined and mcsp_idpverify_enabled is in [true, false]
-      - mcsp_idpverify_secret_verify_name is defined and mcsp_idpverify_secret_verify_name != ""
-      - mcsp_security_enabled is defined and mcsp_security_enabled is in [true, false]
-      - mcsp_logforwarder_enabled is defined and mcsp_logforwarder_enabled is in [true, false]
-      - mcsp_logforwarder_secret_dlc_name is defined and mcsp_logforwarder_secret_dlc_name != ""
-      - mcsp_logforwarder_secret_sf_name is defined and mcsp_logforwarder_secret_sf_name != ""
+      - cluster_name is defined
+      - cluster_name != ""
+      - ocp_version is defined
+      - ocp_version != ""
+      - mcsp_env is defined
+      - mcsp_env is in ["build", "test", "preprod", "prod"]
+      - mcsp_control_plane_api is defined
+      - mcsp_control_plane_api != ""
+      - mcsp_control_plane_token is defined
+      - mcsp_control_plane_token != ""
+      - mcsp_region is defined
+      - mcsp_region != ""
+      - mcsp_platform is defined
+      - mcsp_platform is in ["aws"]
+      - mcsp_platform_account_secret_name is defined
+      - mcsp_platform_account_secret_name != ""
+      - mcsp_control_plane_namespace is defined
+      - mcsp_control_plane_namespace != ""
+      - mcsp_worker_count is defined
+      - mcsp_worker_count != ""
+      - mcsp_worker_flavor is defined
+      - mcsp_worker_flavor != ""
+      - mcsp_dryrun is defined
+      - mcsp_dryrun is in [true, false]
 
+      # Required addons, all parameters must be configured
+      - mcsp_argocd_api is defined
+      - mcsp_argocd_api != ""
+      - mcsp_argocd_secret_name is defined
+      - mcsp_argocd_secret_name != ""
+      - mcsp_argocd_project_name is defined
+      - mcsp_argocd_project_name != ""
+
+      - mcsp_idpverify_enabled is defined
+      - mcsp_idpverify_enabled is in [true, false]
+      - mcsp_idpverify_secret_verify_name is defined
+      - mcsp_idpverify_secret_verify_name != ""
+
+      - mcsp_security_enabled is defined
+      - mcsp_security_enabled is in [true, false]
+      - mcsp_logforwarder_enabled is defined
+      - mcsp_logforwarder_enabled is in [true, false]
+      - mcsp_logforwarder_secret_dlc_name is defined
+      - mcsp_logforwarder_secret_dlc_name != ""
+      - mcsp_logforwarder_secret_sf_name is defined
+      - mcsp_logforwarder_secret_sf_name != ""
+      
+      # Optional addons, parameters only need to be configured if the addon is enabled
+      - mcsp_kubeturbo_enabled is defined
+      - mcsp_kubeturbo_enabled is in [true, false]
+      - not mcsp_kubeturbo_enabled or (mcsp_kubeturbo_turbo_server is defined and mcsp_kubeturbo_turbo_server != "")
+      - not mcsp_kubeturbo_enabled or (mcsp_kubeturbo_turbo_version is defined and mcsp_kubeturbo_turbo_version != "")
+      - not mcsp_kubeturbo_enabled or (mcsp_kubeturbo_secret_kubeturbo_name is defined and mcsp_kubeturbo_secret_kubeturbo_name != "")
 
 - name: "mcsp : Set derived facts"
   set_fact:
@@ -37,9 +70,11 @@
       - ""
       - "Platform ............................... {{ mcsp_platform }}"
       - "Region ................................. {{ mcsp_region }}"
+      - "MCSP Environment ....................... {{ mcsp_env }}"
       - "Control Plane API ...................... {{ mcsp_control_plane_api }}"
       - "Control Plane namespace ................ {{ mcsp_control_plane_namespace }}"
       - "Platform account secret name ........... {{ mcsp_platform_account_secret_name }}"
+      - "Dry run? ............................... {{ mcsp_dryrun }}"
       - ""
       - "Worker Count ........................... {{ mcsp_worker_count }}"
       - "Worker Flavor .......................... {{ mcsp_worker_flavor }}"
@@ -56,12 +91,22 @@
       - "logforwarder addon enabled? ............ {{ mcsp_logforwarder_enabled }}"
       - "dlc-cert secret name ................... {{ mcsp_logforwarder_secret_dlc_name }}"
       - "syslog-forwarder secret name ........... {{ mcsp_logforwarder_secret_sf_name }}"
+      - ""
+      - "kubeturbo addon enabled? ............... {{ mcsp_kubeturbo_enabled }}"
+      - "kubeturbo turbo server ...,............. {{ mcsp_kubeturbo_turbo_server }}"
+      - "kubeturbo turbo version ................ {{ mcsp_kubeturbo_turbo_version }}"
+      - "kubeturbo secret name .................. {{ mcsp_kubeturbo_secret_kubeturbo_name }}"
+
+
+
+- name: "mcsp : Debug CloudRockCluster CR"
+  debug:
+    msg: "{{ lookup('ansible.builtin.template', 'templates/mcsp/cloudrockcluster.yaml.j2').split('\n') }}"
 
 
 - name: "mcsp : Login to MCSP Control Plane"
   shell: >
     oc login --token={{ mcsp_control_plane_token }} --server={{ mcsp_control_plane_api }}
-
 
 - name: "mcsp : Lookup {{ mcsp_platform_account_secret_name }} secret"
   kubernetes.core.k8s_info:
@@ -69,11 +114,11 @@
     kind: Secret
     namespace: "{{ mcsp_control_plane_namespace }}"
     name: "{{ mcsp_platform_account_secret_name }}"
-  register: _mcsp_platform_account_secret_name
+  register: _mcsp_platform_account_secret
 - name: "mcsp : Fail if {{ mcsp_platform_account_secret_name }} secret does not exist"
   fail:
     msg: "The required {{ mcsp_platform_account_secret_name }} secret does not exist. We must create this secret manually once per MCSP environment. See https://pages.github.ibm.com/maximoappsuite/saas/mcsp/"
-  when: _mcsp_platform_account_secret_name.resources | length == 0
+  when: _mcsp_platform_account_secret.resources | length == 0
 
 - name: "mcsp : Lookup {{ mcsp_argocd_secret_name }} secret"
   kubernetes.core.k8s_info:
@@ -81,11 +126,11 @@
     kind: Secret
     namespace: "{{ mcsp_control_plane_namespace }}"
     name: "{{ mcsp_argocd_secret_name }}"
-  register: _mcsp_argocd_secret_name
+  register: _mcsp_argocd_secret
 - name: "mcsp : Fail if {{ mcsp_argocd_secret_name }} secret does not exist"
   fail:
     msg: "The required {{ mcsp_argocd_secret_name }} secret does not exist. We must create this secret manually once per MCSP environment. See https://pages.github.ibm.com/maximoappsuite/saas/mcsp/"
-  when: _mcsp_argocd_secret_name.resources | length == 0
+  when: _mcsp_argocd_secret.resources | length == 0
 
 - name: "mcsp : Lookup {{ mcsp_idpverify_secret_verify_name }} secret"
   kubernetes.core.k8s_info:
@@ -93,11 +138,11 @@
     kind: Secret
     namespace: "{{ mcsp_control_plane_namespace }}"
     name: "{{ mcsp_idpverify_secret_verify_name }}"
-  register: _mcsp_idpverify_secret_verify_name
+  register: _mcsp_idpverify_secret_verify
 - name: "mcsp : Fail if {{ mcsp_idpverify_secret_verify_name }} secret does not exist"
   fail:
     msg: "The required {{ mcsp_idpverify_secret_verify_name }} secret does not exist. This should have been setup by the MCSP team during onboarding. See https://pages.github.ibm.com/maximoappsuite/saas/mcsp/"
-  when: _mcsp_idpverify_secret_verify_name.resources | length == 0
+  when: _mcsp_idpverify_secret_verify.resources | length == 0
 
 - name: "mcsp : Lookup {{ mcsp_logforwarder_secret_dlc_name }} secret"
   kubernetes.core.k8s_info:
@@ -105,11 +150,11 @@
     kind: Secret
     namespace: "{{ mcsp_control_plane_namespace }}"
     name: "{{ mcsp_logforwarder_secret_dlc_name }}"
-  register: _mcsp_logforwarder_secret_dlc_name
+  register: _mcsp_logforwarder_secret_dlc
 - name: "mcsp : Fail if {{ mcsp_logforwarder_secret_dlc_name }} secret does not exist"
   fail:
     msg: "The required {{ mcsp_logforwarder_secret_dlc_name }} secret does not exist. This should have been setup by the MCSP team during onboarding. See https://pages.github.ibm.com/maximoappsuite/saas/mcsp/"
-  when: _mcsp_logforwarder_secret_dlc_name.resources | length == 0
+  when: _mcsp_logforwarder_secret_dlc.resources | length == 0
 
 - name: "mcsp : Lookup {{ mcsp_logforwarder_secret_sf_name }} secret"
   kubernetes.core.k8s_info:
@@ -117,12 +162,23 @@
     kind: Secret
     namespace: "{{ mcsp_control_plane_namespace }}"
     name: "{{ mcsp_logforwarder_secret_sf_name }}"
-  register: _mcsp_logforwarder_secret_sf_name
+  register: _mcsp_logforwarder_secret_sf
 - name: "mcsp : Fail if {{ mcsp_logforwarder_secret_sf_name }} secret does not exist"
   fail:
     msg: "The required {{ mcsp_logforwarder_secret_sf_name }} secret does not exist. This should have been setup by the MCSP team during onboarding. See https://pages.github.ibm.com/maximoappsuite/saas/mcsp/"
-  when: _mcsp_logforwarder_secret_sf_name.resources | length == 0
+  when: _mcsp_logforwarder_secret_sf.resources | length == 0
 
+- name: "mcsp : Lookup {{ mcsp_kubeturbo_secret_kubeturbo_name }} secret"
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    namespace: "{{ mcsp_control_plane_namespace }}"
+    name: "{{ mcsp_kubeturbo_secret_kubeturbo_name }}"
+  register: _mcsp_kubeturbo_secret_kubeturbo
+- name: "mcsp : Fail if {{ mcsp_kubeturbo_secret_kubeturbo_name }} secret does not exist"
+  fail:
+    msg: "The required {{ mcsp_kubeturbo_secret_kubeturbo_name }} secret does not exist. This should have been setup by the MCSP team during onboarding. See https://pages.github.ibm.com/maximoappsuite/saas/mcsp/"
+  when: _mcsp_kubeturbo_secret_kubeturbo.resources | length == 0
 
 # NOTE: field_selectors like below not supported
 #     field_selectors:
@@ -161,12 +217,12 @@
     api_version: automation.ibm.com/v1alpha1
     kind: CloudRockVpc
     namespace: "{{ mcsp_control_plane_namespace }}"
+    name: "{{ sos_vpc_name }}"
     wait: yes
     wait_condition:
       type: Ready
       status: 'True'
     wait_timeout: 5
-
 
 - name: "mcsp : Ensure CloudRockCluster CR is present"
   kubernetes.core.k8s:
@@ -181,6 +237,8 @@
       type: Ready
       status: 'False'
       reason: 'ForceReconcile'
+  when:
+    - not mcsp_dryrun
 
 # Now wait for the status to transition to (or back to, in case of an update) Ready=True
 - name: "mcsp : Wait for CloudRockCluster CR to be ready"
@@ -196,3 +254,5 @@
       type: Ready
       status: 'True'
   ignore_errors: true
+  when:
+    - not mcsp_dryrun

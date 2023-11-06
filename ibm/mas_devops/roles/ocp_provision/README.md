@@ -357,13 +357,31 @@ Role Variables - MCSP
 The following variables are only used when `cluster_type = mcsp`.
 NOTE: This is only intended for internal use within IBM.
 
+
+### mcsp_env
+If true, CloudRockCluster CR will neither be created nor verified. Parameter/environment validity checks will be performed as normal.
+
+- **Required** when `cluster_type = mcsp`
+- Environment Variable: `MCSP_DRYRUN`
+- Default Value: None
+
+### mcsp_dryrun
+
+- **Required** when `cluster_type = mcsp`
+- Environment Variable: `MCSP_ENV`
+- Default Value: true
+
 ### mcsp_control_plane_api
 
 OCP API URL of the Control Plane for the targeted MCSP environment. See https://pages.github.ibm.com/ibm-saas-platform/MultiCloud-SaaS-Framework/MCSP_Overview/mcsp_clusters/
 
 - **Required** when `cluster_type = mcsp`
 - Environment Variable: `MCSP_CONTROL_PLANE_API`
-- Default Value: None
+- Default Value depends on `mcsp_env`:
+  - `build`: https://api.ap-cp-001.azc0.p1.openshiftapps.com:6443"
+  - `test`: TBD
+  - `preprod`: TBD
+  - `prod`: TBD
 
 ### mcsp_control_plane_token
 Temporary; will be replaced with the credentials for a functional ID. See https://ibm-watson-iot.slack.com/archives/C04E0SN54KW/p1697543955467329. In the meantime, if you want to use this role, log in to the MCSP Control Plane OCP using your IBM ID and request a token via the "Copy Login Command" feature.
@@ -420,7 +438,11 @@ API URL of the ArgoCD worker for the targeted MCSP environment/region. See https
 
 - **Required** when `cluster_type = mcsp`
 - Environment Variable: `MCSP_ARGOCD_API`
-- Default Value: None
+- Default Value depends on `mcsp_env`:
+  - `build`: https://argocd-server-argocd-worker.apps.ap-dp-001.o3lu.p1.openshiftapps.com"
+  - `test`: TBD
+  - `preprod`: TBD
+  - `prod`: TBD
 
 ### mcsp_argocd_secret_name
 
@@ -464,7 +486,7 @@ Whether or not to enable the MCSP security addon for this cluster. See https://p
 
 ### mcsp_logforwarder_enabled
 
-Whether or not to enable the MCSP security addon for this cluster. See https://pages.github.ibm.com/ibm-saas-platform/CP-Playbook/Addons/Addon%20List/logforwarder/
+Whether or not to enable the MCSP logforwarder addon for this cluster. See https://pages.github.ibm.com/ibm-saas-platform/CP-Playbook/Addons/Addon%20List/logforwarder/
 
 - **Required** when `cluster_type = mcsp`
 - Environment Variable: ``MCSP_LOGFORWARDER_ENABLED``
@@ -486,6 +508,42 @@ Name of a secret in the MCSP Control Plane OCP containing details necessary used
 - **Required** when `cluster_type = mcsp`
 - Environment Variable: `MCSP_LOGFORWARDER_SECRET_SF_NAME`
 - Default Value: `syslog-forwarder`
+
+
+### mcsp_kubeturbo_enabled
+
+Whether or not to enable the MCSP kubeturbo addon for this cluster. See https://pages.github.ibm.com/ibm-saas-platform/CP-Playbook/Addons/Addon%20List/kubeturbo/
+
+- **Required** when `cluster_type = mcsp`
+- Environment Variable: `MCSP_KUBETURBO_ENABLED`
+- Default Value: true
+
+### mcsp_kubeturbo_turbo_server
+
+URL of Turbonomic server, provided by MCSP.
+
+- **Required** when `cluster_type = mcsp and mcsp_kubeturbo_enabled`
+- Environment Variable: `MCSP_KUBETURBO_TURBO_SERVER`
+- Default Value depends on `mcsp_env`:
+  - `build`: https://nginx-sretools-mas.apps.ap-cp-001.azc0.p1.openshiftapps.com
+  - `test`: TBD
+  - `preprod`: TBD
+  - `prod`: TBD
+
+At the time of writing:
+  - dev: https://nginx-sretools-mas.apps.ap-cp-001.azc0.p1.openshiftapps.com
+
+### mcsp_kubeturbo_turbo_version
+
+Version of Turbonomic server at `mcsp_kubeturbo_turbo_server`.
+
+- **Required** when `cluster_type = mcsp and mcsp_kubeturbo_enabled`
+- Environment Variable: ``MCSP_KUBETURBO_TURBO_VERSION``
+- Default Value depends on `mcsp_env`:
+  - `build`: 8.10.2
+  - `test`: TBD
+  - `preprod`: TBD
+  - `prod`: TBD
 
 Example Playbook
 -------------------------------------------------------------------------------
