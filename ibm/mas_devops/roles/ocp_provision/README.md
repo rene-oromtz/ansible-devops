@@ -571,6 +571,24 @@ Version of Turbonomic server at `mcsp_kubeturbo_turbo_server`.
   - `preprod`: TBD
   - `prod`: TBD
 
+
+### mcsp_imagepullsecret_enabled
+
+Whether or not to enable the MCSP imagepullsecret addon for this cluster. See https://pages.github.ibm.com/ibm-saas-platform/CP-Playbook/Addons/Addon%20List/imagepullsecret/
+
+- **Required** when `cluster_type = mcsp`
+- Environment Variable: `MCSP_IMAGEPULLSECRET_ENABLED`
+- Default Value: true
+
+
+### mcsp_imagepullsecret_secret_names
+
+List of secrets to add to the global `pull-secret` (in the `openshift-config` namespace) of the target cluster. The role will also verify that these secrets exist in the `mas` namespace of the targetted MCSP control plane.
+
+- Optional
+- Environment Variable: `MCSP_IMAGEPULLSECRET_SECRET_NAMES`. Specify as comma-delimited string - whitespace will be trimmed, e.g. "secreta, secretb".
+- Default Value: []
+
 Example Playbook
 -------------------------------------------------------------------------------
 

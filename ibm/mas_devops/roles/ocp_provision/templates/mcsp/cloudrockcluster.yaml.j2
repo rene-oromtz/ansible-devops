@@ -82,6 +82,16 @@ spec:
         kubeturbo: "{{ mcsp_kubeturbo_secret_kubeturbo_name }}"
 {% endif %}
 
+{% if mcsp_imagepullsecret_enabled %}
+    imagepullsecret:
+      config: {}
+      enabled: true
+      secrets:
+          # map list of secret names to format expected by imagepullsecrets addon
+          # e.g. ["a", "b"] -> {"a": "a", "b": "b"}
+        {{ dict(mcsp_imagepullsecret_secret_names | zip(mcsp_imagepullsecret_secret_names)) }}
+{% endif %}
+
   actions: 
     reconcile: true
     donotreconcile: false

@@ -55,10 +55,14 @@
       - not mcsp_kubeturbo_enabled or (mcsp_kubeturbo_turbo_version is defined and mcsp_kubeturbo_turbo_version != "")
       - not mcsp_kubeturbo_enabled or (mcsp_kubeturbo_secret_kubeturbo_name is defined and mcsp_kubeturbo_secret_kubeturbo_name != "")
 
+      - mcsp_imagepullsecret_enabled is defined
+      - mcsp_imagepullsecret_enabled is in [true, false]
+
 - name: "mcsp : Set derived facts"
   set_fact:
     mcsp_cluster_name: "{{ mcsp_control_plane_namespace }}-{{ cluster_name }}"
     mcsp_cluster_vpc_name: "{{ mcsp_control_plane_namespace }}-{{ cluster_name }}-vpc"
+
 
 - name: "mcsp : Debug information"
   debug:
@@ -98,7 +102,9 @@
       - "kubeturbo turbo server ...,............. {{ mcsp_kubeturbo_turbo_server }}"
       - "kubeturbo turbo version ................ {{ mcsp_kubeturbo_turbo_version }}"
       - "kubeturbo secret name .................. {{ mcsp_kubeturbo_secret_kubeturbo_name }}"
-
+      - ""
+      - "imagepullsecret addon enabled? ......... {{ mcsp_imagepullsecret_enabled }}"
+      - "imagepullsecret secret names ........... {{ mcsp_imagepullsecret_secret_names }}"
 
 
 - name: "mcsp : Debug CloudRockCluster CR"

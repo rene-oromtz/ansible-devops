@@ -176,3 +176,11 @@ mcsp_kubeturbo_turbo_version: "{{ lookup('env', 'MCSP_KUBETURBO_TURBO_VERSION') 
     }[mcsp_env], true) }}"
 mcsp_kubeturbo_secret_kubeturbo_name: "{{ lookup('env', 'MCSP_KUBETURBO_SECRET_KUBETURBO_NAME') | default('kubeturbo', true) }}"
 
+
+
+### imagepullsecret
+mcsp_imagepullsecret_enabled: "{{ lookup('env', 'MCSP_IMAGEPULLSECRET_ENABLED') | default(true, true) }}"
+
+mcsp_imagepullsecret_secret_names:  "{{  lookup('env', 'MCSP_IMAGEPULLSECRET_SECRET_NAMES') | split(',') | map('trim') | reject('equalto', '') }}"
+
+
