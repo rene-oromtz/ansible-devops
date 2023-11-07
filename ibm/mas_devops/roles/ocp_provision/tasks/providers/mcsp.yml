@@ -63,6 +63,20 @@
     mcsp_cluster_name: "{{ mcsp_control_plane_namespace }}-{{ cluster_name }}"
     mcsp_cluster_vpc_name: "{{ mcsp_control_plane_namespace }}-{{ cluster_name }}-vpc"
 
+    # Concatenate a list of all secrets we require in the mas namespace
+    # This list will vary depending on which addons are enabled
+    # The list will be looped over by the check_secret.yml task
+    required_secret_names: "{{ 
+        [
+          mcsp_platform_account_secret_name,
+          mcsp_argocd_secret_name
+        ]
+        + (mcsp_idpverify_enabled | ternary([mcsp_idpverify_secret_verify_name], []))
+        + (mcsp_logforwarder_enabled | ternary([mcsp_logforwarder_secret_dlc_name, mcsp_logforwarder_secret_sf_name], []))
+        + (mcsp_kubeturbo_enabled | ternary([mcsp_kubeturbo_secret_kubeturbo_name], []))
+        + (mcsp_imagepullsecret_enabled | ternary(mcsp_imagepullsecret_secret_names, []))
+      }}"
+
 
 - name: "mcsp : Debug information"
   debug:
@@ -105,6 +119,8 @@
       - ""
       - "imagepullsecret addon enabled? ......... {{ mcsp_imagepullsecret_enabled }}"
       - "imagepullsecret secret names ........... {{ mcsp_imagepullsecret_secret_names }}"
+      - ""
+      - "names of all required secrets .......... {{ required_secret_names }}"
 
 
 - name: "mcsp : Debug CloudRockCluster CR"
@@ -116,77 +132,13 @@
   shell: >
     oc login --token={{ mcsp_control_plane_token }} --server={{ mcsp_control_plane_api }}
 
-- name: "mcsp : Lookup {{ mcsp_platform_account_secret_name }} secret"
-  kubernetes.core.k8s_info:
-    api_version: v1
-    kind: Secret
+- name: "mcsp : Check required secrets are present"
+  ansible.builtin.include_tasks: "{{ role_path }}/../../common_tasks/check_secret.yml"
+  vars:
+    secret_name: "{{ item }}"
     namespace: "{{ mcsp_control_plane_namespace }}"
-    name: "{{ mcsp_platform_account_secret_name }}"
-  register: _mcsp_platform_account_secret
-- name: "mcsp : Fail if {{ mcsp_platform_account_secret_name }} secret does not exist"
-  fail:
-    msg: "The required {{ mcsp_platform_account_secret_name }} secret does not exist. We must create this secret manually once per MCSP environment. See https://pages.github.ibm.com/maximoappsuite/saas/mcsp/"
-  when: _mcsp_platform_account_secret.resources | length == 0
-
-- name: "mcsp : Lookup {{ mcsp_argocd_secret_name }} secret"
-  kubernetes.core.k8s_info:
-    api_version: v1
-    kind: Secret
-    namespace: "{{ mcsp_control_plane_namespace }}"
-    name: "{{ mcsp_argocd_secret_name }}"
-  register: _mcsp_argocd_secret
-- name: "mcsp : Fail if {{ mcsp_argocd_secret_name }} secret does not exist"
-  fail:
-    msg: "The required {{ mcsp_argocd_secret_name }} secret does not exist. We must create this secret manually once per MCSP environment. See https://pages.github.ibm.com/maximoappsuite/saas/mcsp/"
-  when: _mcsp_argocd_secret.resources | length == 0
-
-- name: "mcsp : Lookup {{ mcsp_idpverify_secret_verify_name }} secret"
-  kubernetes.core.k8s_info:
-    api_version: v1
-    kind: Secret
-    namespace: "{{ mcsp_control_plane_namespace }}"
-    name: "{{ mcsp_idpverify_secret_verify_name }}"
-  register: _mcsp_idpverify_secret_verify
-- name: "mcsp : Fail if {{ mcsp_idpverify_secret_verify_name }} secret does not exist"
-  fail:
-    msg: "The required {{ mcsp_idpverify_secret_verify_name }} secret does not exist. This should have been setup by the MCSP team during onboarding. See https://pages.github.ibm.com/maximoappsuite/saas/mcsp/"
-  when: _mcsp_idpverify_secret_verify.resources | length == 0
-
-- name: "mcsp : Lookup {{ mcsp_logforwarder_secret_dlc_name }} secret"
-  kubernetes.core.k8s_info:
-    api_version: v1
-    kind: Secret
-    namespace: "{{ mcsp_control_plane_namespace }}"
-    name: "{{ mcsp_logforwarder_secret_dlc_name }}"
-  register: _mcsp_logforwarder_secret_dlc
-- name: "mcsp : Fail if {{ mcsp_logforwarder_secret_dlc_name }} secret does not exist"
-  fail:
-    msg: "The required {{ mcsp_logforwarder_secret_dlc_name }} secret does not exist. This should have been setup by the MCSP team during onboarding. See https://pages.github.ibm.com/maximoappsuite/saas/mcsp/"
-  when: _mcsp_logforwarder_secret_dlc.resources | length == 0
-
-- name: "mcsp : Lookup {{ mcsp_logforwarder_secret_sf_name }} secret"
-  kubernetes.core.k8s_info:
-    api_version: v1
-    kind: Secret
-    namespace: "{{ mcsp_control_plane_namespace }}"
-    name: "{{ mcsp_logforwarder_secret_sf_name }}"
-  register: _mcsp_logforwarder_secret_sf
-- name: "mcsp : Fail if {{ mcsp_logforwarder_secret_sf_name }} secret does not exist"
-  fail:
-    msg: "The required {{ mcsp_logforwarder_secret_sf_name }} secret does not exist. This should have been setup by the MCSP team during onboarding. See https://pages.github.ibm.com/maximoappsuite/saas/mcsp/"
-  when: _mcsp_logforwarder_secret_sf.resources | length == 0
-
-- name: "mcsp : Lookup {{ mcsp_kubeturbo_secret_kubeturbo_name }} secret"
-  kubernetes.core.k8s_info:
-    api_version: v1
-    kind: Secret
-    namespace: "{{ mcsp_control_plane_namespace }}"
-    name: "{{ mcsp_kubeturbo_secret_kubeturbo_name }}"
-  register: _mcsp_kubeturbo_secret_kubeturbo
-- name: "mcsp : Fail if {{ mcsp_kubeturbo_secret_kubeturbo_name }} secret does not exist"
-  fail:
-    msg: "The required {{ mcsp_kubeturbo_secret_kubeturbo_name }} secret does not exist. This should have been setup by the MCSP team during onboarding. See https://pages.github.ibm.com/maximoappsuite/saas/mcsp/"
-  when: _mcsp_kubeturbo_secret_kubeturbo.resources | length == 0
+  loop:
+    "{{ required_secret_names }}"
 
 # NOTE: field_selectors like below not supported
 #     field_selectors:
