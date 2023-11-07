@@ -465,7 +465,7 @@ Name of the ArgoCD project which will contain the Applications that will be depl
 Whether or not to enable the MCSP idpverify addon for this cluster. See https://pages.github.ibm.com/ibm-saas-platform/CP-Playbook/Addons/Addon%20List/idpverify/
 
 - **Required** when `cluster_type = mcsp`
-- Environment Variable: `MCSP_IDPVERIFY_ENABLED`
+- Environment Variable: `MCSP_IDPVERIFY_ENABLED`; strings `yes`, `on`, `1` or `true` (case insensitive) evaluate to `true`.
 - Default Value: true
 
 ### mcsp_idpverify_secret_verify_name
@@ -507,7 +507,7 @@ IBM IDs belonging to these groups in `MCSP AWS - ROSA` application on [(new) Acc
 Whether or not to enable the MCSP security addon for this cluster. See https://pages.github.ibm.com/ibm-saas-platform/CP-Playbook/Addons/Addon%20List/security/
 
 - **Required** when `cluster_type = mcsp`
-- Environment Variable: ``MCSP_SECURITY_ENABLED``
+- Environment Variable: `MCSP_SECURITY_ENABLED`; strings `yes`, `on`, `1` or `true` (case insensitive) evaluate to `true`.
 - Default Value: true
 
 ### mcsp_logforwarder_enabled
@@ -515,7 +515,7 @@ Whether or not to enable the MCSP security addon for this cluster. See https://p
 Whether or not to enable the MCSP logforwarder addon for this cluster. See https://pages.github.ibm.com/ibm-saas-platform/CP-Playbook/Addons/Addon%20List/logforwarder/
 
 - **Required** when `cluster_type = mcsp`
-- Environment Variable: ``MCSP_LOGFORWARDER_ENABLED``
+- Environment Variable: `MCSP_LOGFORWARDER_ENABLED`; strings `yes`, `on`, `1` or `true` (case insensitive) evaluate to `true`.
 - Default Value: true
 
 
@@ -541,7 +541,7 @@ Name of a secret in the MCSP Control Plane OCP containing details necessary used
 Whether or not to enable the MCSP kubeturbo addon for this cluster. See https://pages.github.ibm.com/ibm-saas-platform/CP-Playbook/Addons/Addon%20List/kubeturbo/
 
 - **Required** when `cluster_type = mcsp`
-- Environment Variable: `MCSP_KUBETURBO_ENABLED`
+- Environment Variable: `MCSP_KUBETURBO_ENABLED`; strings `yes`, `on`, `1` or `true` (case insensitive) evaluate to `true`.
 - Default Value: true
 
 ### mcsp_kubeturbo_turbo_server
@@ -577,7 +577,7 @@ Version of Turbonomic server at `mcsp_kubeturbo_turbo_server`.
 Whether or not to enable the MCSP imagepullsecret addon for this cluster. See https://pages.github.ibm.com/ibm-saas-platform/CP-Playbook/Addons/Addon%20List/imagepullsecret/
 
 - **Required** when `cluster_type = mcsp`
-- Environment Variable: `MCSP_IMAGEPULLSECRET_ENABLED`
+- Environment Variable: `MCSP_IMAGEPULLSECRET_ENABLED`; strings `yes`, `on`, `1` or `true` (case insensitive) evaluate to `true`.
 - Default Value: true
 
 

@@ -130,7 +130,7 @@ mcsp_argocd_secret_name: "{{ lookup('env', 'MCSP_ARGOCD_SECRET_NAME') | default(
 mcsp_argocd_project_name: "{{ lookup('env', 'MCSP_ARGOCD_PROJECT_NAME') | default('mas', true) }}"
 
 ### idpverify
-mcsp_idpverify_enabled: "{{ lookup('env', 'MCSP_IDPVERIFY_ENABLED') | default(true, true) }}"
+mcsp_idpverify_enabled: "{{ lookup('env', 'MCSP_IDPVERIFY_ENABLED') | default(true, true) | bool }}"
 mcsp_idpverify_secret_verify_name: "{{ lookup('env', 'MCSP_IDPVERIFY_SECRET_VERIFY_NAME') | default('verify', true) }}"
 
 # We can add more of these if we want to grant IBM IDs access to roles other than the suggested "viewer" and "clusteradmin" ones.
@@ -150,16 +150,16 @@ mcsp_idpverify_groups_viewer: "{{  lookup('env', 'MCSP_IDPVERIFY_GROUPS_VIEWER')
     }[mcsp_env], true) }}"
 
 ### Security
-mcsp_security_enabled: "{{ lookup('env', 'MCSP_SECURITY_ENABLED') | default(true, true) }}"
+mcsp_security_enabled: "{{ lookup('env', 'MCSP_SECURITY_ENABLED') | default(true, true) | bool }}"
 
 ### Logforwarder
-mcsp_logforwarder_enabled: "{{ lookup('env', 'MCSP_LOGFORWARDER_ENABLED') | default(true, true) }}"
+mcsp_logforwarder_enabled: "{{ lookup('env', 'MCSP_LOGFORWARDER_ENABLED') | default(true, true) | bool }}"
 mcsp_logforwarder_secret_dlc_name: "{{ lookup('env', 'MCSP_LOGFORWARDER_SECRET_DLC_NAME') | default('dlc-cert', true) }}"
 mcsp_logforwarder_secret_sf_name: "{{ lookup('env', 'MCSP_LOGFORWARDER_SECRET_SF_NAME') | default('syslog-forwarder', true) }}"
 
 
 # Kubeturbo
-mcsp_kubeturbo_enabled: "{{ lookup('env', 'MCSP_KUBETURBO_ENABLED') | default(true, true) }}"
+mcsp_kubeturbo_enabled: "{{ lookup('env', 'MCSP_KUBETURBO_ENABLED') | default(true, true) | bool }}"
 mcsp_kubeturbo_turbo_server: "{{ lookup('env', 'MCSP_KUBETURBO_TURBO_SERVER') | default(
     {
       'build': 'https://nginx-sretools-mas.apps.ap-cp-001.azc0.p1.openshiftapps.com',
@@ -179,7 +179,7 @@ mcsp_kubeturbo_secret_kubeturbo_name: "{{ lookup('env', 'MCSP_KUBETURBO_SECRET_K
 
 
 ### imagepullsecret
-mcsp_imagepullsecret_enabled: "{{ lookup('env', 'MCSP_IMAGEPULLSECRET_ENABLED') | default(true, true) }}"
+mcsp_imagepullsecret_enabled: "{{ lookup('env', 'MCSP_IMAGEPULLSECRET_ENABLED') | default(true, true) | bool }}"
 
 mcsp_imagepullsecret_secret_names:  "{{  lookup('env', 'MCSP_IMAGEPULLSECRET_SECRET_NAMES') | split(',') | map('trim') | reject('equalto', '') }}"
 
