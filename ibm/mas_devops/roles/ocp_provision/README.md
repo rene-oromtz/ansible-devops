@@ -476,6 +476,32 @@ Name of the secret in the MCSP Control Plane OCP containing details used by the 
 - Environment Variable: `MCSP_IDPVERIFY_SECRET_VERIFY_NAME`
 - Default Value: `verify`
 
+
+### mcsp_idpverify_groups_clusteradmin
+
+IBM IDs belonging to these groups in `MCSP AWS - ROSA` application on [(new) AccessHub](https://ibm-support.saviyntcloud.com/ECMv6/request/applicationRequest?requestList=undefined&&search=TUNTUCBBV1M=&&defaultview=false) will be granted the `cluster-admin` role on the target cluster. 
+
+- Optional
+- Environment Variable: `MCSP_IDPVERIFY_GROUPS_CLUSTERADMIN`. Specify as comma-delimited string - whitespace will be trimmed, e.g. "role1, role2".
+- Default Value depends on `mcsp_env`:
+  - `build`: `['Automation_Platform_Build_Global_PlatformSRE_AutoPlatform', 'Automation_Platform_Build_Global_PlatformDeveloper_AutoPlatform'],`
+  - `test`: TBD
+  - `preprod`: TBD
+  - `prod`: TBD
+
+### mcsp_idpverify_groups_viewer
+
+IBM IDs belonging to these groups in `MCSP AWS - ROSA` application on [(new) AccessHub](https://ibm-support.saviyntcloud.com/ECMv6/request/applicationRequest?requestList=undefined&&search=TUNTUCBBV1M=&&defaultview=false) will be granted the `viewer` role on the target cluster. 
+
+- Optional
+- Environment Variable: `MCSP_IDPVERIFY_GROUPS_VIEWER`. Specify as comma-delimited string - whitespace will be trimmed, e.g. "role1, role2".
+- Default Value depends on `mcsp_env`:
+  - `build`: `['Automation_Platform_Build_Global_Security_AutoPlatform']`,
+  - `test`: TBD
+  - `preprod`: TBD
+  - `prod`: TBD
+
+
 ### mcsp_security_enabled
 
 Whether or not to enable the MCSP security addon for this cluster. See https://pages.github.ibm.com/ibm-saas-platform/CP-Playbook/Addons/Addon%20List/security/

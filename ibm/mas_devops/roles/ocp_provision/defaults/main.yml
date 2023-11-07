@@ -133,6 +133,21 @@ mcsp_argocd_project_name: "{{ lookup('env', 'MCSP_ARGOCD_PROJECT_NAME') | defaul
 mcsp_idpverify_enabled: "{{ lookup('env', 'MCSP_IDPVERIFY_ENABLED') | default(true, true) }}"
 mcsp_idpverify_secret_verify_name: "{{ lookup('env', 'MCSP_IDPVERIFY_SECRET_VERIFY_NAME') | default('verify', true) }}"
 
+# We can add more of these if we want to grant IBM IDs access to roles other than the suggested "viewer" and "clusteradmin" ones.
+mcsp_idpverify_groups_clusteradmin: "{{  lookup('env', 'MCSP_IDPVERIFY_GROUPS_CLUSTERADMIN') | split(',') | map('trim') | reject('equalto', '') | default(
+    {
+      'build': ['Automation_Platform_Build_Global_PlatformSRE_AutoPlatform', 'Automation_Platform_Build_Global_PlatformDeveloper_AutoPlatform'],
+      'test': ['Automation_Platform_Test_Global_PlatformSRE_AutoPlatform', 'Automation_Platform_Test_Global_PlatformDeveloper_AutoPlatform'],
+      'preprod': [],
+      'prod': []
+    }[mcsp_env], true) }}"
+mcsp_idpverify_groups_viewer: "{{  lookup('env', 'MCSP_IDPVERIFY_GROUPS_VIEWER') | split(',') | map('trim') | reject('equalto', '') | default(
+    {
+      'build': ['Automation_Platform_Build_Global_Security_AutoPlatform'],
+      'test': ['Automation_Platform_Test_Global_Security_AutoPlatform'],
+      'preprod': [],
+      'prod': []
+    }[mcsp_env], true) }}"
 
 ### Security
 mcsp_security_enabled: "{{ lookup('env', 'MCSP_SECURITY_ENABLED') | default(true, true) }}"
@@ -160,3 +175,4 @@ mcsp_kubeturbo_turbo_version: "{{ lookup('env', 'MCSP_KUBETURBO_TURBO_VERSION') 
       'prod': ''
     }[mcsp_env], true) }}"
 mcsp_kubeturbo_secret_kubeturbo_name: "{{ lookup('env', 'MCSP_KUBETURBO_SECRET_KUBETURBO_NAME') | default('kubeturbo', true) }}"
+

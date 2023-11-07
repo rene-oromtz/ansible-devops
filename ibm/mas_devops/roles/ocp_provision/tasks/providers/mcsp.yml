@@ -84,6 +84,8 @@
       - "ArgoCD project name..................... {{ mcsp_argocd_project_name }}"
       - ""
       - "idpverify addon enabled? ............... {{ mcsp_idpverify_enabled }}"
+      - "clusteradmin groups .................... {{ mcsp_idpverify_groups_clusteradmin }}"
+      - "viewer groups .......................... {{ mcsp_idpverify_groups_viewer }}"
       - "verify secret name ..................... {{ mcsp_idpverify_secret_verify_name }}"
       - ""
       - "security addon enabled? ................ {{ mcsp_security_enabled }}"
@@ -101,7 +103,7 @@
 
 - name: "mcsp : Debug CloudRockCluster CR"
   debug:
-    msg: "{{ lookup('ansible.builtin.template', 'templates/mcsp/cloudrockcluster.yaml.j2').split('\n') }}"
+    msg: "{{ lookup('ansible.builtin.template', 'templates/mcsp/cloudrockcluster.yaml.j2') | from_yaml}}"
 
 
 - name: "mcsp : Login to MCSP Control Plane"

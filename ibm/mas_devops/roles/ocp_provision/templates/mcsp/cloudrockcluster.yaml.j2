@@ -40,11 +40,10 @@ spec:
         issuer: https://sre-ibm-prod.verify.ibm.com/oidc/endpoint/default
         clusterrolebindings:
           - groups:
-              - Automation_Platform_Build_Global_PlatformSRE_AutoPlatform
-              - Automation_Platform_Build_Global_PlatformDeveloper_AutoPlatform
+              {{ mcsp_idpverify_groups_clusteradmin }}
             roleref: cluster-admin
           - groups:
-              - Automation_Platform_Build_Global_Security_AutoPlatform
+              {{ mcsp_idpverify_groups_viewer }}
             roleref: viewer
       secrets:
         verify: "{{ mcsp_idpverify_secret_verify_name }}"
