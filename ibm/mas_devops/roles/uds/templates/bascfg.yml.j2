@@ -49,6 +49,11 @@ spec:
       crt: |
         {{ uds_tls_crt[1] | indent(8) }}
 {% endif %}
+{% if uds_tls_crt | length > 2 %}
+    - alias: part3
+      crt: |
+        {{ uds_tls_crt[2] | indent(8) }}
+{% endif %}
     - alias: isrg-root-x1 # default root certificate used by Let's Encrypt
       crt: |
         -----BEGIN CERTIFICATE-----
