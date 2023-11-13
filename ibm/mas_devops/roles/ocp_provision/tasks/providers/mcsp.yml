@@ -58,6 +58,15 @@
       - mcsp_imagepullsecret_enabled is defined
       - mcsp_imagepullsecret_enabled is in [true, false]
 
+      - mcsp_promtail_enabled is defined
+      - mcsp_promtail_enabled is in [true, false]
+      - not mcsp_promtail_enabled or (mcsp_promtail_secret_name is defined and mcsp_promtail_secret_name != "")
+      - not mcsp_promtail_enabled or (mcsp_promtail_loki_url is defined and mcsp_promtail_loki_url != "")
+      - not mcsp_promtail_enabled or (mcsp_promtail_loki_tlsinsecureskipverify is defined and mcsp_promtail_loki_tlsinsecureskipverify is in [true, false])
+      - not mcsp_promtail_enabled or (mcsp_promtail_loki_imagetag is defined and mcsp_promtail_loki_imagetag != "")
+
+
+
 - name: "mcsp : Set derived facts"
   set_fact:
     mcsp_cluster_name: "{{ mcsp_control_plane_namespace }}-{{ cluster_name }}"
@@ -75,6 +84,7 @@
         + (mcsp_logforwarder_enabled | ternary([mcsp_logforwarder_secret_dlc_name, mcsp_logforwarder_secret_sf_name], []))
         + (mcsp_kubeturbo_enabled | ternary([mcsp_kubeturbo_secret_kubeturbo_name], []))
         + (mcsp_imagepullsecret_enabled | ternary(mcsp_imagepullsecret_secret_names, []))
+        + (mcsp_promtail_enabled | ternary([mcsp_promtail_secret_name], []))
       }}"
 
 
@@ -119,6 +129,12 @@
       - ""
       - "imagepullsecret addon enabled? ......... {{ mcsp_imagepullsecret_enabled }}"
       - "imagepullsecret secret names ........... {{ mcsp_imagepullsecret_secret_names }}"
+      - ""
+      - "promtail addon enabled? ................ {{ mcsp_promtail_enabled }}"
+      - "promtail secret name ................... {{ mcsp_promtail_secret_name }}"
+      - "promtail Loki URL ...................... {{ mcsp_promtail_loki_url }}"
+      - "promtail Loki image tag ................ {{ mcsp_promtail_loki_imagetag }}"
+      - "promtail skip TLS verify? .............. {{ mcsp_promtail_loki_tlsinsecureskipverify }}"
       - ""
       - "names of all required secrets .......... {{ required_secret_names }}"
 

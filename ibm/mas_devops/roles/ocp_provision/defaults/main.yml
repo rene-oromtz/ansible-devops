@@ -180,7 +180,22 @@ mcsp_kubeturbo_secret_kubeturbo_name: "{{ lookup('env', 'MCSP_KUBETURBO_SECRET_K
 
 ### imagepullsecret
 mcsp_imagepullsecret_enabled: "{{ lookup('env', 'MCSP_IMAGEPULLSECRET_ENABLED') | default(true, true) | bool }}"
-
 mcsp_imagepullsecret_secret_names:  "{{  lookup('env', 'MCSP_IMAGEPULLSECRET_SECRET_NAMES') | split(',') | map('trim') | reject('equalto', '') }}"
 
+
+# Promtail (loki)
+mcsp_promtail_enabled: "{{ lookup('env', 'MCSP_PROMTAIL_ENABLED') | default(true, true) | bool }}"
+mcsp_promtail_secret_name: "{{ lookup('env', 'MCSP_PROMTAIL_SECRET_NAME') | default('promtail', true) }}"
+mcsp_promtail_loki_url: "{{ lookup('env', 'MCSP_PROMTAIL_LOKI_URL') | default(
+    {
+      'build': 'https://loki-mas.platform.dev.saas.ibm.com',
+      'test': '',
+      'preprod': '',
+      'prod': ''
+    }[mcsp_env], true) }}"
+mcsp_promtail_loki_tlsinsecureskipverify: "{{ lookup('env', 'MCSP_PROMTAIL_LOKI_TLSINSECURESKIPVERIFY') | default(false, true) | bool }}"
+mcsp_promtail_loki_imagetag: "{{ lookup('env', 'MCSP_PROMTAIL_LOKI_IMAGETAG') | default('2.8.2', true) }}"
+
+
+# Instana
 

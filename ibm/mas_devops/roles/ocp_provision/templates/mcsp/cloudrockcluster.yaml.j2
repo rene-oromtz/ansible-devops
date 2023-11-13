@@ -92,6 +92,17 @@ spec:
         {{ dict(mcsp_imagepullsecret_secret_names | zip(mcsp_imagepullsecret_secret_names)) }}
 {% endif %}
 
+{% if mcsp_promtail_enabled %}
+    promtail:
+      config:
+        lokiURL: "{{ mcsp_promtail_loki_url }}"
+        tlsinsecureskipverify: "{{ mcsp_promtail_loki_tlsinsecureskipverify | string | lower }}"
+        imagetag: "{{ mcsp_promtail_loki_imagetag }}"
+      enabled: true
+      secrets:
+          promtail: "{{ mcsp_promtail_secret_name }}"
+{% endif %}
+
   actions: 
     reconcile: true
     donotreconcile: false

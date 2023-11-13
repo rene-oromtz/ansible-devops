@@ -529,7 +529,7 @@ Name of a secret in the MCSP Control Plane OCP containing details necessary used
 
 ### mcsp_logforwarder_secret_sf_name
 
-Name of a secret in the MCSP Control Plane OCP containing details necessary used by the logforwarder addon. This should already have been configured by the MCSP team as part of the MAS onboarding process.
+Name of a secret in the MCSP Control Plane OCP containing credentials used by the logforwarder addon. This should already have been configured by the MCSP team as part of the MAS onboarding process.
 
 - **Required** when `cluster_type = mcsp`
 - Environment Variable: `MCSP_LOGFORWARDER_SECRET_SF_NAME`
@@ -588,6 +588,56 @@ List of secrets to add to the global `pull-secret` (in the `openshift-config` na
 - Optional
 - Environment Variable: `MCSP_IMAGEPULLSECRET_SECRET_NAMES`. Specify as comma-delimited string - whitespace will be trimmed, e.g. "secreta, secretb".
 - Default Value: []
+
+
+
+### mcsp_promtail_enabled
+
+Whether or not to enable the MCSP promtail addon for this cluster. See https://pages.github.ibm.com/ibm-saas-platform/CP-Playbook/Addons/Addon%20List/promtail/
+
+- **Required** when `cluster_type = mcsp`
+- Environment Variable: `MCSP_PROMTAIL_ENABLED`; strings `yes`, `on`, `1` or `true` (case insensitive) evaluate to `true`.
+- Default Value: true
+
+
+### mcsp_promtail_secret_name
+
+Name of a secret in the MCSP Control Plane OCP containing credentials used by the promtail addon. This should already have been configured by the MCSP team as part of the MAS onboarding process.
+
+- **Required** when `cluster_type = mcsp and mcsp_promtail_enabled`
+- Environment Variable: `MCSP_PROMTAIL_SECRET_NAME`
+- Default Value: `promtail`
+
+
+### mcsp_promtail_loki_url
+
+URL of Loki server, provided by MCSP.
+
+- **Required** when `cluster_type = mcsp and mcsp_promtail_enabled`
+- Environment Variable: `MCSP_PROMTAIL_LOKI_URL`
+- Default Value depends on `mcsp_env`:
+  - `build`: https://loki-mas.platform.dev.saas.ibm.com
+  - `test`: TBD
+  - `preprod`: TBD
+  - `prod`: TBD
+
+### mcsp_promtail_loki_tlsinsecureskipverify
+
+If true, promtail agent will skip TLS verification of Loki host.
+
+- **Required** when `cluster_type = mcsp and mcsp_promtail_enabled`
+- Environment Variable: `MCSP_PROMTAIL_LOKI_TLSINSECURESKIPVERIFY`; strings `yes`, `on`, `1` or `true` (case insensitive) evaluate to `true`.
+- Default Value: false
+
+### mcsp_promtail_loki_imagetag
+
+Controls the image tag of the docker.io/grafana/promtail image to be used.
+
+- **Required** when `cluster_type = mcsp and mcsp_promtail_enabled`
+- Environment Variable: `MCSP_PROMTAIL_LOKI_IMAGETAG`
+- Default Value: '2.8.2'
+
+
 
 Example Playbook
 -------------------------------------------------------------------------------
