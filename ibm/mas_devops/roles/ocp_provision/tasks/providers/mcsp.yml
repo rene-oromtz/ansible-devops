@@ -65,12 +65,23 @@
       - not mcsp_promtail_enabled or (mcsp_promtail_loki_tlsinsecureskipverify is defined and mcsp_promtail_loki_tlsinsecureskipverify is in [true, false])
       - not mcsp_promtail_enabled or (mcsp_promtail_loki_imagetag is defined and mcsp_promtail_loki_imagetag != "")
 
+      - mcsp_instana_enabled is defined
+      - mcsp_instana_enabled is in [true, false]
+      - not mcsp_instana_enabled or (mcsp_instana_agent_endpoint is defined and mcsp_instana_agent_endpoint != "")
+      - not mcsp_instana_enabled or (mcsp_instana_agent_endpoint_port is defined and mcsp_instana_agent_endpoint_port != "")
+      - not mcsp_instana_enabled or (mcsp_instana_zone is defined and mcsp_instana_zone != "")
+      - not mcsp_instana_enabled or (mcsp_instana_secret_name is defined and mcsp_instana_secret_name != "")
+      - not mcsp_instana_enabled or (mcsp_instana_configuration is defined)
+
 
 
 - name: "mcsp : Set derived facts"
   set_fact:
     mcsp_cluster_name: "{{ mcsp_control_plane_namespace }}-{{ cluster_name }}"
     mcsp_cluster_vpc_name: "{{ mcsp_control_plane_namespace }}-{{ cluster_name }}-vpc"
+
+    # Convert any mcsp_configuration provided into pure JSON as we don't have to worry about newlines then (all valid JSON is valid YAML - instana accepts JSON config)
+    mcsp_instana_configuration_json_string: "{{ mcsp_instana_configuration | from_yaml | to_json }}"
 
     # Concatenate a list of all secrets we require in the mas namespace
     # This list will vary depending on which addons are enabled
@@ -85,6 +96,7 @@
         + (mcsp_kubeturbo_enabled | ternary([mcsp_kubeturbo_secret_kubeturbo_name], []))
         + (mcsp_imagepullsecret_enabled | ternary(mcsp_imagepullsecret_secret_names, []))
         + (mcsp_promtail_enabled | ternary([mcsp_promtail_secret_name], []))
+        + (mcsp_instana_enabled | ternary([mcsp_instana_secret_name], []))
       }}"
 
 
@@ -136,12 +148,19 @@
       - "promtail Loki image tag ................ {{ mcsp_promtail_loki_imagetag }}"
       - "promtail skip TLS verify? .............. {{ mcsp_promtail_loki_tlsinsecureskipverify }}"
       - ""
+      - "instana addon enabled? ................. {{ mcsp_instana_enabled }}"
+      - "instana agent endpoint ................. {{ mcsp_instana_agent_endpoint }}"
+      - "instana agent endpoint port ............ {{ mcsp_instana_agent_endpoint_port }}"
+      - "instana zone ........................... {{ mcsp_instana_zone }}"
+      - "instana secret name .................... {{ mcsp_instana_secret_name }}"
+      - "instana configuration .................. {{ mcsp_instana_configuration_json_string }}"
+      - ""
       - "names of all required secrets .......... {{ required_secret_names }}"
 
 
 - name: "mcsp : Debug CloudRockCluster CR"
   debug:
-    msg: "{{ lookup('ansible.builtin.template', 'templates/mcsp/cloudrockcluster.yaml.j2') | from_yaml}}"
+    msg: "{{ lookup('ansible.builtin.template', 'templates/mcsp/cloudrockcluster.yaml.j2') | from_yaml }}"
 
 
 - name: "mcsp : Login to MCSP Control Plane"

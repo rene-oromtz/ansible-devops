@@ -199,3 +199,25 @@ mcsp_promtail_loki_imagetag: "{{ lookup('env', 'MCSP_PROMTAIL_LOKI_IMAGETAG') | 
 
 # Instana
 
+mcsp_instana_enabled: "{{ lookup('env', 'MCSP_INSTANA_ENABLED') | default(true, true) | bool }}"
+mcsp_instana_agent_endpoint: "{{ lookup('env', 'MCSP_INSTANA_AGENT_ENDPOINT') | default(
+    {
+      'build': 'dev-masdev.instana.io',
+      'test': '',
+      'preprod': '',
+      'prod': ''
+    }[mcsp_env], true) }}"
+
+mcsp_instana_agent_endpoint_port: "{{ lookup('env', 'MCSP_INSTANA_AGENT_ENDPOINT_PORT') | default(
+    {
+      'build': '443',
+      'test': '',
+      'preprod': '',
+      'prod': ''
+    }[mcsp_env], true) | string }}"
+
+mcsp_instana_zone: "{{ lookup('env', 'MCSP_INSTANA_ZONE') | default(cluster_name, true) }}"
+
+mcsp_instana_secret_name: "{{ lookup('env', 'MCSP_INSTANA_SECRET_NAME') | default('instana', true) }}"
+
+mcsp_instana_configuration: "{{ lookup('env', 'MCSP_INSTANA_CONFIGURATION') | default('{}', true) }}"

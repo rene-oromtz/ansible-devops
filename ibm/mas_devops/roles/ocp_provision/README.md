@@ -639,6 +639,85 @@ Controls the image tag of the docker.io/grafana/promtail image to be used.
 
 
 
+
+### mcsp_instana_enabled
+
+Whether or not to enable the MCSP Instana addon for this cluster. See https://pages.github.ibm.com/ibm-saas-platform/CP-Playbook/Addons/Addon%20List/instana/
+
+- **Required** when `cluster_type = mcsp`
+- Environment Variable: `MCSP_INSTANA_ENABLED`; strings `yes`, `on`, `1` or `true` (case insensitive) evaluate to `true`.
+- Default Value: true
+
+
+### mcsp_instana_agent_endpoint
+
+Instana host URL.
+
+- **Required** when `cluster_type = mcsp and mcsp_instana_enabled`
+- Environment Variable: `MCSP_INSTANA_AGENT_ENDPOINT`
+- Default Value depends on `mcsp_env`:
+  - `build`: dev-masdev.instana.io
+  - `test`: TBD
+  - `preprod`: TBD
+  - `prod`: TBD
+
+### mcsp_instana_agent_endpoint_port
+
+Instana host port.
+
+- **Required** when `cluster_type = mcsp and mcsp_instana_enabled`
+- Environment Variable: `MCSP_INSTANA_AGENT_ENDPOINT_PORT`
+- Default Value depends on `mcsp_env`:
+  - `build`: 443
+  - `test`: TBD
+  - `preprod`: TBD
+  - `prod`: TBD
+
+
+### mcsp_instana_zone
+
+- **Required** when `cluster_type = mcsp and mcsp_instana_enabled`
+- Environment Variable: `MCSP_INSTANA_ZONE`
+- Default Value: `<cluster-name>`
+
+
+### mcsp_instana_secret_name
+
+
+Name of a secret in the MCSP Control Plane OCP containing credentials used by the Instana addon. This should already have been configured by the MCSP team as part of the MAS onboarding process.
+
+- **Required** when `cluster_type = mcsp and mcsp_instana_enabled`
+- Environment Variable: `MCSP_INSTANA_SECRET_NAME`
+- Default Value: `instana`
+
+### mcsp_instana_configuration
+
+Custom Instana agent configuration. 
+
+- **Required** when `cluster_type = mcsp and mcsp_instana_enabled`
+- Environment Variable: `MCSP_INSTANA_CONFIGURATION`.
+- Default Value: {}
+
+If setting directly as a var, (i.e. in a playbook), set as an object, e.g.:
+```
+mcsp_instana_configuration:
+  com.instana.plugin.host:
+    tags:
+      - 'dev'
+      - 'app3'
+```
+
+If setting using an environment var, it can be provided as either a YAML or JSON string, e.g.
+```
+export MCSP_INSTANA_CONFIGURATION="com.instana.plugin.host:
+  tags:
+    - 'dev'
+    - 'app1'"
+
+export MCSP_INSTANA_CONFIGURATION='{"com.instana.plugin.host": {"tags": ["dev", "app1"]}}'
+```
+
+
 Example Playbook
 -------------------------------------------------------------------------------
 

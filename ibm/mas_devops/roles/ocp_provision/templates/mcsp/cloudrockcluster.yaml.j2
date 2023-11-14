@@ -10,10 +10,10 @@ spec:
   multiaz: true
   vpc:
     name: "{{ mcsp_cluster_vpc_name }}"
-  workerpools:
-    - count: {{ mcsp_worker_count }}
-      flavor: "{{ mcsp_worker_flavor }}"
-      id: default         
+    workerpools:
+      - count: {{ mcsp_worker_count }}
+        flavor: "{{ mcsp_worker_flavor }}"
+        id: default
   account:
     secretname: "{{ mcsp_platform_account_secret_name }}"
   addon:
@@ -101,6 +101,18 @@ spec:
       enabled: true
       secrets:
           promtail: "{{ mcsp_promtail_secret_name }}"
+{% endif %}
+
+{% if mcsp_instana_enabled %}
+    instana:
+      enabled: true
+      config:
+        instanaAgentEndpoint: "{{ mcsp_instana_agent_endpoint }}"
+        instanaAgentEndpointPort: "{{ mcsp_instana_agent_endpoint_port }}"
+        instanaZone: "{{ mcsp_instana_zone }}"
+        configuration.yaml: '{{ mcsp_instana_configuration_json_string }}'
+      secrets:
+        instana: "{{ mcsp_instana_secret_name }}"
 {% endif %}
 
   actions: 
