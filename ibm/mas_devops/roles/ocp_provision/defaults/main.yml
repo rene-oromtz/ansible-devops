@@ -202,7 +202,7 @@ mcsp_promtail_loki_imagetag: "{{ lookup('env', 'MCSP_PROMTAIL_LOKI_IMAGETAG') | 
 mcsp_instana_enabled: "{{ lookup('env', 'MCSP_INSTANA_ENABLED') | default(true, true) | bool }}"
 mcsp_instana_agent_endpoint: "{{ lookup('env', 'MCSP_INSTANA_AGENT_ENDPOINT') | default(
     {
-      'build': 'dev-masdev.instana.io',
+      'build': 'ingress-red-saas.instana.io',
       'test': '',
       'preprod': '',
       'prod': ''
