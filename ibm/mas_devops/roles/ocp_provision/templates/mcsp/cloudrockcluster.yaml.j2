@@ -10,10 +10,10 @@ spec:
   multiaz: true
   vpc:
     name: "{{ mcsp_cluster_vpc_name }}"
-    workerpools:
-      - count: {{ mcsp_worker_count }}
-        flavor: "{{ mcsp_worker_flavor }}"
-        id: default
+  workerpools:
+    - count: {{ mcsp_worker_count }}
+      flavor: "{{ mcsp_worker_flavor }}"
+      id: default
   account:
     secretname: "{{ mcsp_platform_account_secret_name }}"
   addon:
