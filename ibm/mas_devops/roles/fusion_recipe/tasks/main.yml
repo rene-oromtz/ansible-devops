@@ -1,0 +1,68 @@
+# 1. Check for undefined properties that do not have a default
+# -----------------------------------------------------------------------------
+- name: "Fail if mas_instance_id is not provided"
+  assert:
+    that: mas_instance_id is defined and mas_instance_id != ""
+    fail_msg: "mas_instance_id property is required"
+
+
+- name: "Fail if fusion_app_id is not provided"
+  assert:
+    that: fusion_app_id is defined and fusion_app_id != ""
+    fail_msg: "fusion_app_id property is required"
+
+- name: "Fail if db2_instance_name is not provided"
+  assert:
+    that: db2_instance_name is defined and db2_instance_name != ""
+    fail_msg: "db2_instance_name property is required for DB2 application"
+  when: fusion_app_id in ['db2']
+
+# 2. Validating application is supported by Fusion
+# -----------------------------------------------------------------------------
+- name: "Validate application"
+  assert:
+      that: fusion_app_id in ['mongodb', 'db2', 'core', 'manage', 'sls', 'kafka']
+      fail_msg: "Invalid application: {{ fusion_app_id }}."
+
+# 3. Provide debug information
+# -----------------------------------------------------------------------------
+- name: "Debug information"
+  debug:
+    msg:
+      - "MAS Instance ID......................... {{ mas_instance_id }}"
+      - "MAS Config Dir.......................... {{ mas_config_dir }}"
+      - "Fusion Namespace........................ {{ fusion_namespace | lower }}"
+      - "Fusion Application Recipe............... {{ fusion_app_id | lower }}"
+
+# 4. Create recipe for application
+# -----------------------------------------------------------------------------
+- name: Create Fusion Recipe
+  kubernetes.core.k8s:
+    definition: "{{ lookup('template', 'templates/{{ fusion_app_id | lower }}_recipe.yml.j2') }}"
+
+# 5. Debug Recipe
+# -----------------------------------------------------------------------------
+
+- name: Gather Application Recipe
+  kubernetes.core.k8s_info:
+    api_version: spp-data-protection.isf.ibm.com/v1alpha1
+    kind: Recipe
+    name: maximo-{{ fusion_app_id | lower }}-backup-restore-recipe
+    namespace: '{{ fusion_namespace | lower }}'
+  register: recipe_cr
+
+- name: Debug the applied Fusion Recipe
+  debug:
+    var: recipe_cr.resources
+
+# 6. Create Recipe yml definition
+# -----------------------------------------------------------------------------
+- name: "Create recipe yml"
+  when:
+    - mas_instance_id is defined
+    - mas_instance_id != ""
+    - mas_config_dir is defined
+    - mas_config_dir != ""
+  ansible.builtin.template:
+    src: '{{ fusion_app_id | lower }}_recipe.yml.j2'
+    dest: "{{ mas_config_dir }}/{{ fusion_app_id | lower }}-fusion-recipe.yml"

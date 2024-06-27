@@ -1,0 +1,35 @@
+---
+#fusion configuration
+# -----------------------------------------------------------------------------
+fusion_namespace: "{{ lookup('env', 'FUSION_NAMESPACE') | default('ibm-spectrum-fusion-ns', true) }}"
+
+#mongo configuration
+# -----------------------------------------------------------------------------
+mongodb_namespace: "{{ lookup('env', 'MONGODB_NAMESPACE') | default('mongoce', true) }}"
+
+#db2 configuration
+# -----------------------------------------------------------------------------
+db2_namespace: "{{ lookup('env', 'DB2_NAMESPACE') | default('db2u', true) }}"
+db2_instance_name: "{{ lookup('env', 'DB2_INSTANCE_NAME') }}"
+
+#kafka configuration
+# -----------------------------------------------------------------------------
+kafka_namespace: "{{ lookup('env', 'KAFKA_NAMESPACE') | default('amq-streams', true) }}"
+
+#sls configuration
+# -----------------------------------------------------------------------------
+sls_namespace: "{{ lookup('env', 'SLS_NAMESPACE') | default('ibm-sls', true) }}"
+
+# MAS instance configuration
+# -----------------------------------------------------------------------------
+mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
+mas_config_dir: "{{ lookup('env', 'MAS_CONFIG_DIR') }}"
+
+#Application to backup configuration
+# -----------------------------------------------------------------------------
+fusion_app_id: "{{ lookup('env', 'FUSION_APP_ID') }}"
+
+#Reporting operator configuration
+# -----------------------------------------------------------------------------
+reporting_operator_endpoint: "{{ lookup('env', 'REPORTING_OPERATOR_ENDPOINT') | default('ibm-data-reporter', true) }}"
+reporting_operator_namespace: "{{ lookup('env', 'REPORTING_OPERATOR_NAMESPACE') | default('redhat-marketplace', true) }}"
