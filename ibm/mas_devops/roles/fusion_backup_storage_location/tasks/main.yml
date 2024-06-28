@@ -1,0 +1,87 @@
+# 1. Check for undefined properties that do not have a default
+# -----------------------------------------------------------------------------
+- name: "Fail if backup_storage_location is not provided"
+  assert:
+    that: backup_storage_location is defined and backup_storage_location != ""
+    fail_msg: "backup_storage_location property is required"
+
+- name: "Fail if bsl_endpoint is not provided"
+  assert:
+    that: bsl_endpoint is defined and bsl_endpoint != ""
+    fail_msg: "bsl_endpoint property is required"
+
+- name: "Fail if access_key_id is not provided"
+  assert:
+    that: access_key_id is defined and access_key_id != ""
+    fail_msg: "access_key_id property is required"
+
+- name: "Fail if secret_key is not provided"
+  assert:
+    that: secret_key is defined and secret_key != ""
+    fail_msg: "secret_key property is required"
+
+- name: "Fail if provider_type is not provided"
+  assert:
+    that: provider_type is defined and secret_key != ""
+    fail_msg: "provider_type property is required"
+
+# 2. Provide debug information
+# -----------------------------------------------------------------------------
+- name: "Debug information"
+  debug:
+    msg:
+      - "Fusion Namespace........................ {{ fusion_namespace | lower }}"
+      - "Backup Storage Location................. {{ backup_storage_location }}"
+      - "BSL Endpoint............................ {{ bsl_endpoint | lower }}"
+      - "Bucket Provided Type.................... {{ provider_type | lower }}"
+
+# 3. Validate BSL does not exist
+# -----------------------------------------------------------------------------
+
+- name: Gather Fusion Backup Storage Location
+  kubernetes.core.k8s_info:
+    api_version: data-protection.isf.ibm.com/v1alpha1
+    kind: BackupStorageLocation
+    name: '{{ backup_storage_location }}'
+    namespace: '{{ fusion_namespace | lower }}'
+  register: existing_bsl_cr
+  ignore_errors: true
+
+- name: Set a fact if BSL exists
+  set_fact:
+    cr_exists: "{{ existing_bsl_cr.resources | length > 0 }}"
+
+
+# 4. Create backup storage location for Fusion
+# -----------------------------------------------------------------------------
+- name: Create Fusion Backup Storage Location
+  kubernetes.core.k8s:
+    definition: "{{ lookup('template', 'templates/backup_storage_location.yml.j2') }}"
+  when: not cr_exists
+
+# 5. Debug Fusion BSL
+# -----------------------------------------------------------------------------
+
+- name: Gather Fusion Backup Storage Location
+  kubernetes.core.k8s_info:
+    api_version: data-protection.isf.ibm.com/v1alpha1
+    kind: BackupStorageLocation
+    name: '{{ backup_storage_location }}'
+    namespace: '{{ fusion_namespace | lower }}'
+  register: bsl_cr
+  when: not cr_exists
+
+- name: Debug the applied Fusion Backup Storage Location
+  debug:
+    var: bsl_cr.resources
+  when: not cr_exists
+
+# 6. Create Backup Storage Location yml definition
+# -----------------------------------------------------------------------------
+- name: "Create application backup policy yml"
+  when:
+    - mas_config_dir is defined
+    - mas_config_dir != ""
+  ansible.builtin.template:
+    src: 'backup_storage_location.yml.j2'
+    dest: "{{ mas_config_dir }}/fusion-storage-location.yml"

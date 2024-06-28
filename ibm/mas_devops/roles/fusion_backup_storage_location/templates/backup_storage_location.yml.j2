@@ -1,0 +1,28 @@
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: '{{ backup_storage_location }}-secret-0'
+  namespace: '{{ fusion_namespace | lower}}'
+stringData:
+  access-key-id: '{{ access_key_id }}'
+  secret-access-key: '{{ secret_key }}'
+
+---
+# Fusion Backup Storage Location Template
+apiVersion: data-protection.isf.ibm.com/v1alpha1
+kind: BackupStorageLocation
+metadata:
+  name: '{{ backup_storage_location }}'
+  namespace: '{{ fusion_namespace | lower}}'
+  labels:
+    dp.isf.ibm.com/backupstoragelocation-type: '{{ provider_type | lower}}'
+    dp.isf.ibm.com/provider-name: isf-backup-restore
+spec:
+  credentialName: '{{ backup_storage_location }}-secret-0'
+  params:
+    bucket: '{{ backup_storage_location }}'
+    endpoint: '{{ bsl_endpoint }}'
+  provider: isf-backup-restore
+  type: '{{ provider_type | lower}}'
