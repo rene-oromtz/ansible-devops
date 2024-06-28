@@ -1,0 +1,54 @@
+# 1. Check for undefined properties that do not have a default
+# -----------------------------------------------------------------------------
+- name: "Fail if fusion_app_id is not provided"
+  assert:
+    that: fusion_app_id is defined and fusion_app_id != ""
+    fail_msg: "fusion_app_id property is required"
+
+- name: "Fail if backup_storage_location is not provided"
+  assert:
+    that: backup_storage_location is defined and backup_storage_location != ""
+    fail_msg: "backup_storage_location property is required"
+
+# 2. Provide debug information
+# -----------------------------------------------------------------------------
+- name: "Debug information"
+  debug:
+    msg:
+      - "Fusion Namespace........................ {{ fusion_namespace | lower }}"
+      - "Fusion Application Recipe............... {{ fusion_app_id | lower }}"
+      - "Backup Storage Location................. {{ backup_storage_location }}"
+      - "Backup Retention Days................... {{ backup_retention_days }}"
+      - "Backup Weekday.......................... {{ backup_weekday | lower  }}"
+      - "Backup Timezone......................... {{ backup_timezone }}"
+
+# 3. Create backup policy for application
+# -----------------------------------------------------------------------------
+- name: Create Fusion Backup Policy
+  kubernetes.core.k8s:
+    definition: "{{ lookup('template', 'templates/backup_policy.yml.j2') }}"
+
+# 4. Debug Recipe
+# -----------------------------------------------------------------------------
+
+- name: Gather Backup Policy
+  kubernetes.core.k8s_info:
+    api_version: data-protection.isf.ibm.com/v1alpha1
+    kind: BackupPolicy
+    name: '{{ fusion_app_id | lower }}-policy'
+    namespace: '{{ fusion_namespace | lower }}'
+  register: backup_policy_cr
+
+- name: Debug applied Fusion Backup Policy
+  debug:
+    var: backup_policy_cr.resources
+
+# 5. Create Backup Policy yml definition
+# -----------------------------------------------------------------------------
+- name: "Create backup policy yml"
+  when:
+    - mas_config_dir is defined
+    - mas_config_dir != ""
+  ansible.builtin.template:
+    src: 'backup_policy.yml.j2'
+    dest: "{{ mas_config_dir }}/{{ fusion_app_id | lower }}-backup-policy.yml"

@@ -1,0 +1,27 @@
+---
+#fusion configuration
+# -----------------------------------------------------------------------------
+fusion_namespace: "{{ lookup('env', 'FUSION_NAMESPACE') | default('ibm-spectrum-fusion-ns', true) }}"
+
+#application to backup configuration
+# -----------------------------------------------------------------------------
+fusion_app_id: "{{ lookup('env', 'FUSION_APP_ID') }}"
+backup_storage_location: "{{ lookup('env', 'BACKUP_STORAGE_LOCATION') }}"
+backup_retention_days: "{{ lookup('env', 'RETENTION_DAYS') | default('30', true) }}"
+backup_weekday: "{{ lookup('env', 'BACKUP_WEEKDAY') | default('sunday', true) }}"
+backup_timezone: "{{ lookup('env', 'BACKUP_TIMEZONE') | default('America/Mexico_City', true) }}"
+
+# MAS instance configuration
+# -----------------------------------------------------------------------------
+mas_config_dir: "{{ lookup('env', 'MAS_CONFIG_DIR') }}"
+
+#weekday mapping configuration
+weekday_mapping:
+  sunday: 0
+  monday: 1
+  tuesday: 2
+  wednesday: 3
+  thursday: 4
+  friday: 5
+  saturday: 6
+  daily: '*'

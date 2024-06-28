@@ -1,0 +1,19 @@
+---
+# Fusion Backup Policy Template
+apiVersion: data-protection.isf.ibm.com/v1alpha1
+kind: BackupPolicy
+metadata:
+  name: '{{ fusion_app_id | lower}}-policy'
+  namespace: '{{ fusion_namespace | lower }}'
+  labels:
+    dp.isf.ibm.com/backupstoragelocation-name: '{{ backup_storage_location }}'
+    dp.isf.ibm.com/provider-name: isf-backup-restore
+spec:
+  backupStorageLocation: '{{ backup_storage_location }}'
+  provider: isf-backup-restore
+  retention:
+    number: {{ backup_retention_days }}
+    unit: days
+  schedule:
+    cron: 00 0  * * {{ weekday_mapping[backup_weekday | lower] }}
+    timezone: '{{ backup_timezone }}'
