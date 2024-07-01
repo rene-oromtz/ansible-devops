@@ -1,0 +1,73 @@
+# 1. Check for undefined properties that do not have a default
+# -----------------------------------------------------------------------------
+- name: "Fail if fusion_app_id is not provided"
+  assert:
+    that: fusion_app_id is defined and fusion_app_id != ""
+    fail_msg: "fusion_app_id property is required"
+
+- name: "Fail if backup_storage_location is not provided"
+  assert:
+    that: backup_storage_location is defined and backup_storage_location != ""
+    fail_msg: "backup_storage_location property is required"
+
+- name: "Fail if mas_instance_id is not provided"
+  assert:
+    that: mas_instance_id is defined and mas_instance_id != ""
+    fail_msg: "mas_instance_id property is required"
+
+# 2. Validating application is supported by Fusion
+# -----------------------------------------------------------------------------
+- name: "Validate application"
+  assert:
+      that: fusion_app_id in ['mongodb', 'db2', 'core', 'manage', 'sls', 'kafka']
+      fail_msg: "Invalid application: {{ fusion_app_id }}."
+
+# 3. Setting the application namespace
+# -----------------------------------------------------------------------------
+- name: "Set namespace based on specified application"
+  set_fact: 
+    application_namespace: "{{ lookup('vars', fusion_app_id + '_namespace') }}"
+
+# 4. Provide debug information
+# -----------------------------------------------------------------------------
+- name: "Debug information"
+  debug:
+    msg:
+      - "Fusion Namespace........................ {{ fusion_namespace | lower }}"
+      - "Fusion Application Recipe............... {{ fusion_app_id | lower }}"
+      - "Fusion Recipe........................... {{ fusion_recipe | lower }}"
+      - "Backup Storage Location................. {{ backup_storage_location }}"
+      - "Backup Policy........................... {{ backup_policy }}"
+      - "MAS Instance ID......................... {{ mas_instance_id }}"
+      - "Application Namespace................... {{ application_namespace }}"
+
+# 5. Create recipe for application
+# -----------------------------------------------------------------------------
+- name: Create Fusion Policy Assigment
+  kubernetes.core.k8s:
+    definition: "{{ lookup('template', 'templates/policy_assignment.yml.j2') }}"
+
+# 6. Debug Recipe
+# -----------------------------------------------------------------------------
+
+- name: Gather Application Policy Assignment
+  kubernetes.core.k8s_info:
+    api_version: data-protection.isf.ibm.com/v1alpha1
+    kind: PolicyAssignment
+    name: '{{ application_namespace }}-{{ backup_policy }}'
+    namespace: '{{ fusion_namespace | lower }}'
+  register: fpa_cr
+
+- name: Debug the applied Fusion Recipe
+  debug:
+    var: fpa_cr.resources
+
+# 7. Create Fusion Policy Assignment yml definition
+# -----------------------------------------------------------------------------
+- name: "Create Fusion Policy Assignment yml"
+  when:
+    - mas_config_dir is defined
+    - mas_config_dir != ""
+  ansible.builtin.template:
+    src: 'policy_assignment.yml.j2'
+    dest: "{{ mas_config_dir }}/{{ fusion_app_id }}-policy-assigment.yml"
