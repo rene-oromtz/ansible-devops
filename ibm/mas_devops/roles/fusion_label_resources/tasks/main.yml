@@ -1,0 +1,42 @@
+# 1. Check for undefined properties that do not have a default
+# -----------------------------------------------------------------------------
+- name: "Fail if fusion_app_id is not provided"
+  assert:
+    that: fusion_app_id is defined and fusion_app_id != ""
+    fail_msg: "fusion_app_id property is required"
+
+
+- name: "Fail if mas_instance_id is not provided"
+  assert:
+    that: mas_instance_id is defined and mas_instance_id != ""
+    fail_msg: "mas_instance_id property is required"
+
+- name: "Fail if mas_workspace_id is not provided"
+  assert:
+    that: mas_workspace_id is defined and mas_workspace_id != ""
+    fail_msg: "mas_workspace_id property is required"
+
+# 2. Validating application is supported by Fusion
+# -----------------------------------------------------------------------------
+- name: "Validate application"
+  assert:
+      that: fusion_app_id in ['mongodb', 'core', 'manage', 'sls', 'kafka']
+      fail_msg: "Invalid application: {{ fusion_app_id }}."
+
+# 3. Provide debug information
+# -----------------------------------------------------------------------------
+- name: "Debug information"
+  debug:
+    msg:
+      - "Fusion Namespace........................ {{ fusion_namespace | lower }}"
+      - "MAS Instance ID......................... {{ mas_instance_id }}"
+      - "Fusion Backup Application............... {{ fusion_app_id }}"
+
+# 4. Set backup variables
+- name: "Load mas core variables"
+  include_tasks: "tasks/backup_resources.yml"
+
+# 5. Debug
+- name: Display all variables/facts known for a host
+  ansible.builtin.debug:
+    msg: "Manage resources: {{ manage_backup_resources }}"

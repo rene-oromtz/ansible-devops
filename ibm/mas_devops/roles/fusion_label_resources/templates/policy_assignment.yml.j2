@@ -1,0 +1,20 @@
+---
+# Fusion Policy Assignment Template
+apiVersion: data-protection.isf.ibm.com/v1alpha1
+kind: PolicyAssignment
+metadata:
+  namespace: '{{ fusion_namespace | lower}}'
+  name: '{{ application_namespace }}-{{ backup_policy }}'
+  labels:
+    dp.isf.ibm.com/application-name: '{{ application_namespace }}'
+    dp.isf.ibm.com/backuppolicy-name: '{{ backup_policy }}'
+    dp.isf.ibm.com/backupstoragelocation-name: '{{ backup_storage_location }}'
+    dp.isf.ibm.com/provider-name: isf-backup-restore
+spec:
+  application: '{{ application_namespace }}'
+  backupPolicy: '{{ backup_policy }}'
+  recipe:
+    apiVersion: spp-data-protection.isf.ibm.com/v1alpha1
+    name: '{{ fusion_recipe }}'
+    namespace: '{{ fusion_namespace | lower}}'
+  runNow: false

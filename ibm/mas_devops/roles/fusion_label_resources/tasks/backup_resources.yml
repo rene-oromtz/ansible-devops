@@ -1,0 +1,174 @@
+---
+# Retrive Mongo Resources to label
+- name: "Set fact: mongo backup resources"
+  set_fact:
+    mongodb_backup_resources:
+      - namespace: "{{ mongodb_namespace }}"
+        resources: 
+          - kind: CustomResourceDefinition
+            name: mongodbcommunity.mongodbcommunity.mongodb.com
+  when: fusion_app_id == "mongodb"
+
+# Retrive SLS resources to label
+- name: "Set fact: sls backup resources"
+  set_fact:
+    sls_backup_resources:
+      - namespace: "{{ sls_namespace }}"
+        resources: 
+          - kind: Secret
+            name: ibm-sls-mongo-credentials
+          - kind: Secret
+            name: ibm-sls-sls-entitlement
+          - kind: LicenseService
+            name: sls
+          - kind: OperatorGroup
+            name: ibm-sls-operator-group
+          - kind: Subscription
+            name: ibm-sls
+  when: fusion_app_id == "sls"
+
+# Retrieve Kafka resources to label
+- name: "Get existing Kakfa"
+  kubernetes.core.k8s_info:
+    api_version: kafka.strimzi.io/v1beta2
+    kind: Kafka
+    namespace: "{{ kafka_namespace }}"
+  register: kafkas
+  when: fusion_app_id == "kafka"
+
+- name: "Extract Kafka names"
+  set_fact:
+    kafka_name: "{{ kafkas.resources | json_query('[].metadata.name') }}"
+  when: fusion_app_id == "kafka"
+
+- name: "Get existing KakfaUser"
+  kubernetes.core.k8s_info:
+    api_version: kafka.strimzi.io/v1beta2
+    kind: KafkaUser
+    namespace: "{{ kafka_namespace }}"
+  register: kafka_user
+  when: fusion_app_id == "kafka"
+
+- name: "Extract Kafka User names"
+  set_fact:
+    kafka_user_name: "{{ kafka_user.resources | json_query('[].metadata.name') }}"
+  when: fusion_app_id == "kafka"
+
+- name: "Set fact: Kafka backup resources"
+  set_fact:
+    kafka_backup_resources:
+      - namespace: "{{ kafka_namespace }}"
+        resources: 
+          - kind: ConfigMap
+            name: kafka-metrics-config
+          - kind: ConfigMap
+            name: kafka-logging-config
+          - kind: Secret
+            name: "{{ kafka_user_name}}-credentials"
+          - kind: Kafkas
+            api_version: kafka.strimzi.io/v1beta2
+            name: "{{ kafka_name }}"
+          - kind: KafkaUser
+            api_version: kafka.strimzi.io/v1beta2
+            name: "{{ kafka_user_name }}"
+  when: fusion_app_id == "kafka"
+
+#Retrieve Core Resources
+- name: "Get JDBCCfg Information"
+  kubernetes.core.k8s_info:
+    api_version: config.mas.ibm.com/v1
+    kind: JdbcCfg
+    namespace: "{{ core_namespace }}"
+  register: jdbccfg_info
+  when: fusion_app_id == "core"
+
+- name: Get JDBCCfg Credentials
+  set_fact:
+    jdbc_secret: "{{ jdbccfg_info.resources | json_query('[].spec.config.credentials.secretName') }}"
+  when: jdbccfg_info
+
+- name: "Get KafkaCfg Information"
+  kubernetes.core.k8s_info:
+    api_version: config.mas.ibm.com/v1
+    kind: KafkaCfg
+    namespace: "{{ core_namespace }}"
+  register: kafkacfg_info
+  when: fusion_app_id == "core"
+
+- name: Get KafkaCfg Credentials
+  set_fact:
+    kafka_secret: "{{ kafkacfg_info.resources | json_query('[].spec.config.credentials.secretName') }}"
+  when: kafkacfg_info
+  
+- name: "Set fact: core backup resources"
+  set_fact:
+    core_backup_resources:
+      - namespace: "{{ core_namespace }}"
+        resources: 
+          - kind: Secret
+            name: "{{ mas_instance_id | lower}}-credentials-superuser"
+          - kind: Secret
+            name: ibm-entitlement
+          - kind: Secret
+            name: mongodb-mongoce-admin
+          - kind: Secret
+            name: sls-registration-key
+          - kind: Secret
+            name: "{{ reporting_operator }}-apikey"
+          - kind: Secret
+            name: mas-jdbc-credentials  
+          - kind: Secret
+            name: mas-kafka-credentials 
+          - kind: Secret
+            name: "{{ jdbc_secret }}"
+          - kind: Secret
+            name: "{{ kafka_secret }}"
+  when: fusion_app_id == "core"
+
+#Retrieve Manage Resources
+- name: "Get ManageApp Information"
+  kubernetes.core.k8s_info:
+    api_version: apps.mas.ibm.com/v1
+    kind: ManageApp
+    namespace: "{{ manage_namespace }}"
+  register: manageapp_info
+  when: fusion_app_id == "manage"
+
+- name: Get ManageApp Name
+  set_fact:
+    manageapp_name: "{{ manageapp_info.resources | json_query('[].metadata.name') }}"
+  when: manageapp_info
+
+- name: "Get ManageWorkspace Information"
+  kubernetes.core.k8s_info:
+    api_version: apps.mas.ibm.com/v1
+    kind: ManageWorkspace
+    namespace: "{{ manage_namespace }}"
+  register: manageworkspace_info
+  when: fusion_app_id == "manage"
+
+- name: Get ManageWorkspace Name
+  set_fact:
+    manageworkspace_name: "{{ manageworkspace_info.resources | json_query('[].metadata.name') }}"
+  when: manageworkspace_info
+
+- name: "Set fact: Manage backup resources"
+  set_fact:
+    manage_backup_resources:
+      - namespace: "{{ manage_namespace }}"
+        resources: 
+          - kind: Subscription
+            name: ibm-mas-manage
+          - kind: OperatorGroup
+            name: mas-{{ mas_instance_id }}-manage-operator-group
+          - kind: Secret
+            name: ibm-entitlement
+          - kind: Secret
+            name: "{{ mas_workspace_id }}-manage-encryptionsecret"
+          - kind: Secret
+            name: "{{ mas_workspace_id }}-manage-encryptionsecret-operator"
+          - kind: ManageApp
+            name: "{{ manageapp_name }}"
+          - kind: ManageWorkspace
+            name: "{{ manageworkspace_name }}"
+  when: fusion_app_id == "manage"

@@ -1,0 +1,36 @@
+---
+#fusion configuration
+# -----------------------------------------------------------------------------
+fusion_namespace: "{{ lookup('env', 'FUSION_NAMESPACE') | default('ibm-spectrum-fusion-ns', true) }}"
+
+#mongo configuration
+# -----------------------------------------------------------------------------
+mongodb_namespace: "{{ lookup('env', 'MONGODB_NAMESPACE') | default('mongoce', true) }}"
+
+#db2 configuration
+# -----------------------------------------------------------------------------
+db2_namespace: "{{ lookup('env', 'DB2_NAMESPACE') | default('db2u', true) }}"
+
+#sls configuration
+# -----------------------------------------------------------------------------
+sls_namespace: "{{ lookup('env', 'SLS_NAMESPACE') | default('ibm-sls', true) }}"
+
+#kafka configuration
+# -----------------------------------------------------------------------------
+kafka_namespace: "{{ lookup('env', 'KAFKA_NAMESPACE') | default('amq-streams', true) }}"
+
+#application to backup configuration
+# -----------------------------------------------------------------------------
+fusion_app_id: "{{ lookup('env', 'FUSION_APP_ID') }}"
+
+#reporting operator configuration
+reporting_operator: "{{ lookup('env', 'REPORTING_OPERATOR') | default('dro', true) }}"
+
+# MAS instance configuration
+# -----------------------------------------------------------------------------
+mas_config_dir: "{{ lookup('env', 'MAS_CONFIG_DIR') }}"
+mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
+mas_workspace_id: "{{ lookup('env', 'MAS_WORKSPACE_ID') }}"
+
+core_namespace: "{{ lookup('env', 'CORE_NAMESPACE') | default('mas-' ~ mas_instance_id | lower ~ '-core', true) }}"
+manage_namespace: "{{ lookup('env', 'MANAGE_NAMESPACE') | default('mas-' ~ mas_instance_id | lower ~ '-manage', true) }}"
